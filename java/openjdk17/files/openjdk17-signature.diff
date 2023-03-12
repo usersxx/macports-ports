@@ -651,4 +651,3 @@
                                                                  operand);
              const char *result_signature;
 -            check_and_push_string_utf(context, signature);
- 
