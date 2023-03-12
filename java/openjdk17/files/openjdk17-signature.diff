@@ -324,3 +324,392 @@
          OTHER_FILE="$OTHER_STRIPPED_FILE"
      fi
 
+--- src/jdk.jdwp.agent/share/native/libjdwp/eventHandler.h
++++ src/jdk.jdwp.agent/share/native/libjdwp/eventHandler.h
+@@ -76,7 +76,6 @@
+ void eventHandler_lock(void);
+ void eventHandler_unlock(void);
+ 
+-jboolean eventHandler_synthesizeUnloadEvent(char *signature, JNIEnv *env);
+ 
+ jclass getMethodClass(jvmtiEnv *jvmti_env, jmethodID method);
+ 
+--- src/jdk.jdwp.agent/share/native/libjdwp/eventHandler.c
++++ src/jdk.jdwp.agent/share/native/libjdwp/eventHandler.c
+@@ -457,10 +457,16 @@
+     }
+ }
+ 
+-/* Create a synthetic class unload event for the specified signature. */
+-jboolean
+-eventHandler_synthesizeUnloadEvent(char *signature, JNIEnv *env)
++/* A bagEnumerateFunction.  Create a synthetic class unload event
++ * for every class no longer present.  Analogous to event_callback
++ * combined with a handler in a unload specific (no event
++ * structure) kind of way.
++ */
++static jboolean
++synthesizeUnloadEvent(void *signatureVoid, void *envVoid)
+ {
++    JNIEnv *env = (JNIEnv *)envVoid;
++    char *signature = *(char **)signatureVoid;
+     char *classname;
+     HandlerNode *node;
+     jbyte eventSessionID = currentSessionID;
+@@ -554,10 +560,39 @@
+     currentException = JNI_FUNC_PTR(env,ExceptionOccurred)(env);
+     JNI_FUNC_PTR(env,ExceptionClear)(env);
+ 
+-    /* See if a garbage collection finish event happened earlier. */
+-    if ( garbageCollected > 0) {
++    /* See if a garbage collection finish event happened earlier.
++     *
++     * Note: The "if" is an optimization to avoid entering the lock on every
++     *       event; garbageCollected may be zapped before we enter
++     *       the lock but then this just becomes one big no-op.
++     */
++    if ( garbageCollected > 0 ) {
++        struct bag *unloadedSignatures = NULL;
++
++        /* We want to compact the hash table of all
++         * objects sent to the front end by removing objects that have
++         * been collected.
++         */
+         commonRef_compact();
++
++        /* We also need to simulate the class unload events. */
++
++        debugMonitorEnter(handlerLock);
++
++        /* Clear garbage collection counter */
+         garbageCollected = 0;
++
++        /* Analyze which class unloads occurred */
++        unloadedSignatures = classTrack_processUnloads(env);
++
++        debugMonitorExit(handlerLock);
++
++        /* Generate the synthetic class unload events and/or just cleanup.  */
++        if ( unloadedSignatures != NULL ) {
++            (void)bagEnumerateOver(unloadedSignatures, synthesizeUnloadEvent,
++                             (void *)env);
++            bagDestroyBag(unloadedSignatures);
++        }
+     }
+ 
+     thread = evinfo->thread;
+@@ -1592,6 +1627,9 @@
+ 
+     node->handlerID = external? ++requestIdCounter : 0;
+     error = eventFilterRestricted_install(node);
++    if (node->ei == EI_GC_FINISH) {
++        classTrack_activate(getEnv());
++    }
+     if (error == JVMTI_ERROR_NONE) {
+         insert(getHandlerChain(node->ei), node);
+     }
+--- src/jdk.jdwp.agent/share/native/libjdwp/classTrack.c
++++ src/jdk.jdwp.agent/share/native/libjdwp/classTrack.c
+@@ -37,7 +37,6 @@
+ #include "util.h"
+ #include "bag.h"
+ #include "classTrack.h"
+-#include "eventHandler.h"
+ 
+ #define NOT_TAGGED 0
+ 
+@@ -47,14 +46,64 @@
+ static jvmtiEnv* trackingEnv;
+ 
+ /*
+- * Invoke the callback when classes are freed.
++ * A bag containing all the deleted classes' signatures. Must be accessed under
++ * classTrackLock.
+  */
+-void JNICALL
++struct bag* deletedSignatures;
++
++/*
++ * Lock to keep integrity of deletedSignatures.
++ */
++static jrawMonitorID classTrackLock;
++
++/*
++ * Invoke the callback when classes are freed, find and record the signature
++ * in deletedSignatures. Those are only used in addPreparedClass() by the
++ * same thread.
++ */
++static void JNICALL
+ cbTrackingObjectFree(jvmtiEnv* jvmti_env, jlong tag)
+ {
+-    eventHandler_synthesizeUnloadEvent((char*)jlong_to_ptr(tag), getEnv());
++    debugMonitorEnter(classTrackLock);
++    if (deletedSignatures == NULL) {
++      debugMonitorExit(classTrackLock);
++      return;
++    }
++    *(char**)bagAdd(deletedSignatures) = (char*)jlong_to_ptr(tag);
++
++    debugMonitorExit(classTrackLock);
++}
++
++/*
++ * Called after class unloads have occurred.
++ * The signatures of classes which were unloaded are returned.
++ */
++struct bag *
++classTrack_processUnloads(JNIEnv *env)
++{
++    if (deletedSignatures == NULL) {
++      return NULL;
++    }
++
++    /* Allocate new bag outside classTrackLock lock to avoid deadlock.
++     *
++     * Note: jvmtiAllocate/jvmtiDeallocate() may be blocked by ongoing safepoints.
++     * It is dangerous to call them (via bagCreateBag/bagDestroyBag()) while holding monitor(s),
++     * because jvmti may post events, e.g. JVMTI_EVENT_OBJECT_FREE at safepoints and event processing
++     * code may acquire the same monitor(s), e.g. classTrackLock in cbTrackingObjectFree(),
++     * which can lead to deadlock.
++     */
++    struct bag* new_bag = bagCreateBag(sizeof(char*), 10);
++    debugMonitorEnter(classTrackLock);
++    struct bag* deleted = deletedSignatures;
++    deletedSignatures = new_bag;
++    debugMonitorExit(classTrackLock);
++    return deleted;
+ }
+ 
++/*
++ * Add a class to the prepared class table.
++ */
+ void
+ classTrack_addPreparedClass(JNIEnv *env_unused, jclass klass)
+ {
+@@ -113,6 +162,8 @@
+ void
+ classTrack_initialize(JNIEnv *env)
+ {
++    deletedSignatures = NULL;
++    classTrackLock = debugMonitorCreate("Deleted class tag lock");
+     trackingEnv = getSpecialJvmti();
+     if (trackingEnv == NULL) {
+         EXIT_ERROR(AGENT_ERROR_INTERNAL, "Failed to allocate tag-tracking jvmtiEnv");
+@@ -144,3 +195,44 @@
+         EXIT_ERROR(error,"loaded classes array");
+     }
+ }
++
++/*
++ * Called to activate class-tracking when a listener registers for EI_GC_FINISH.
++ */
++void
++classTrack_activate(JNIEnv *env)
++{
++    // Allocate bag outside classTrackLock lock to avoid deadlock.
++    // See comments in classTrack_processUnloads() for details.
++    struct bag* new_bag = bagCreateBag(sizeof(char*), 1000);
++    debugMonitorEnter(classTrackLock);
++    deletedSignatures = new_bag;
++    debugMonitorExit(classTrackLock);
++}
++
++static jboolean
++cleanDeleted(void *signatureVoid, void *arg)
++{
++    char* sig = *(char**)signatureVoid;
++    jvmtiDeallocate(sig);
++    return JNI_TRUE;
++}
++
++/*
++ * Called when agent detaches.
++ */
++void
++classTrack_reset(void)
++{
++    debugMonitorEnter(classTrackLock);
++    struct bag* to_delete = deletedSignatures;
++    deletedSignatures = NULL;
++    debugMonitorExit(classTrackLock);
++
++    // Deallocate bag outside classTrackLock to avoid deadlock.
++    // See comments in classTrack_processUnloads() for details.
++    if (to_delete != NULL) {
++      bagEnumerateOver(to_delete, cleanDeleted, NULL);
++      bagDestroyBag(to_delete);
++    }
++}
+
+--- src/java.base/share/native/libverify/check_code.c
++++ src/java.base/share/native/libverify/check_code.c
+@@ -605,7 +604,7 @@
+     unsigned short *pID;
+     const char *name = JVM_GetClassNameUTF(env, cb);
+ 
+-    check_and_push_string_utf(context, name);
++    check_and_push(context, name, VM_STRING_UTF);
+     hash = class_hash_fun(name);
+     pID = &(class_hash->table[hash % HASH_TABLE_SIZE]);
+     while (*pID) {
+@@ -940,10 +939,10 @@
+     int i;
+ 
+     lengths = malloc(sizeof(int) * num_methods);
+-    check_and_push_malloc_block(context, lengths);
++    check_and_push(context, lengths, VM_MALLOC_BLK);
+ 
+     code = malloc(sizeof(unsigned char*) * num_methods);
+-    check_and_push_malloc_block(context, code);
++    check_and_push(context, code, VM_MALLOC_BLK);
+ 
+     *(lengths_addr) = lengths;
+     *(code_addr) = code;
+@@ -952,7 +951,7 @@
+         lengths[i] = JVM_GetMethodIxByteCodeLength(context->env, cb, i);
+         if (lengths[i] > 0) {
+             code[i] = malloc(sizeof(unsigned char) * (lengths[i] + 1));
+-            check_and_push_malloc_block(context, code[i]);
++            check_and_push(context, code[i], VM_MALLOC_BLK);
+             JVM_GetMethodIxByteCode(context->env, cb, i, code[i]);
+         } else {
+             code[i] = NULL;
+@@ -1306,7 +1305,7 @@
+         /* Make sure the constant pool item is the right type. */
+         verify_constant_pool_type(context, key, kind);
+         methodname = JVM_GetCPMethodNameUTF(env, cb, key);
+-        check_and_push_string_utf(context, methodname);
++        check_and_push(context, methodname, VM_STRING_UTF);
+         is_constructor = !strcmp(methodname, "<init>");
+         is_internal = methodname[0] == '<';
+         pop_and_free(context);
+@@ -1355,7 +1354,7 @@
+             unsigned int args2;
+             const char *signature =
+                 JVM_GetCPMethodSignatureUTF(env, context->class, key);
+-            check_and_push_string_utf(context, signature);
++            check_and_push(context, signature, VM_STRING_UTF);
+             args1 = signature_to_args_size(signature) + 1;
+             args2 = code[offset + 3];
+             if (args1 != args2) {
+@@ -1653,7 +1652,7 @@
+             classname = JVM_GetCPClassNameUTF(env,
+                                               context->class,
+                                               einfo.catchType);
+-            check_and_push_string_utf(context, classname);
++            check_and_push(context, classname, VM_STRING_UTF);
+             stack_item->item = make_class_info_from_name(context, classname);
+             if (!isAssignableTo(context,
+                                 stack_item->item,
+@@ -1808,7 +1807,7 @@
+         }
+     }
+     signature = JVM_GetMethodIxSignatureUTF(env, cb, mi);
+-    check_and_push_string_utf(context, signature);
++    check_and_push(context, signature, VM_STRING_UTF);
+     /* Fill in each of the arguments into the registers. */
+     for (p = signature + 1; *p != JVM_SIGNATURE_ENDFUNC; ) {
+         char fieldchar = signature_to_fieldtype(context, &p, &full_info);
+@@ -2051,7 +2050,7 @@
+                                            context->class,
+                                            operand);
+             char *ip = buffer;
+-            check_and_push_string_utf(context, signature);
++            check_and_push(context, signature, VM_STRING_UTF);
+ #ifdef DEBUG
+             if (verify_verbose) {
+                 print_formatted_fieldname(context, operand);
+@@ -2077,7 +2076,7 @@
+                                             operand);
+             char *ip = buffer;
+             const char *p;
+-            check_and_push_string_utf(context, signature);
++            check_and_push(context, signature, VM_STRING_UTF);
+ #ifdef DEBUG
+             if (verify_verbose) {
+                 print_formatted_methodname(context, operand);
+@@ -2377,7 +2376,7 @@
+                                             operand);
+             int item;
+             const char *p;
+-            check_and_push_string_utf(context, signature);
++            check_and_push(context, signature, VM_STRING_UTF);
+             if (opcode == JVM_OPC_invokestatic) {
+                 item = 0;
+             } else if (opcode == JVM_OPC_invokeinit) {
+@@ -2759,7 +2758,7 @@
+             const char *signature = JVM_GetCPFieldSignatureUTF(context->env,
+                                                                context->class,
+                                                                operand);
+-            check_and_push_string_utf(context, signature);
++            check_and_push(context, signature, VM_STRING_UTF);
+ #ifdef DEBUG
+             if (verify_verbose) {
+                 print_formatted_fieldname(context, operand);
+@@ -2781,7 +2780,7 @@
+                                                                 context->class,
+                                                                 operand);
+             const char *result_signature;
+-            check_and_push_string_utf(context, signature);
++            check_and_push(context, signature, VM_STRING_UTF);
+             result_signature = get_result_signature(signature);
+             if (result_signature++ == NULL) {
+                 CCerror(context, "Illegal signature %s", signature);
+@@ -3622,7 +3621,7 @@
+         CCerror(context, "Internal error #5");
+     }
+ 
+-    check_and_push_string_utf(context, classname);
++    check_and_push(context, classname, VM_STRING_UTF);
+     if (classname[0] == JVM_SIGNATURE_ARRAY) {
+         /* This make recursively call us, in case of a class array */
+         signature_to_fieldtype(context, &classname, &result);
+@@ -3823,8 +3822,8 @@
+                 assert(finish >= p);
+                 length = (int)(finish - p);
+                 if (length + 1 > (int)sizeof(buffer_space)) {
+-                    buffer = malloc(length + 1);
+-                    check_and_push_malloc_block(context, buffer);
++                    buffer = calloc(length + 1, sizeof(char));
++                    check_and_push(context, buffer, VM_MALLOC_BLK);
+                 }
+                 memcpy(buffer, p, length);
+                 buffer[length] = '\0';
+@@ -4143,7 +4142,7 @@
+     }
+ }
+ 
+-static void check_and_push_common(context_type *context, void *ptr, int kind)
++static void check_and_push(context_type *context, const void *ptr, int kind)
+ {
+     alloc_stack_type *p;
+     if (ptr == 0)
+@@ -4155,24 +4154,16 @@
+         p = malloc(sizeof(alloc_stack_type));
+         if (p == 0) {
+             /* Make sure we clean up. */
+-            free_block(ptr, kind);
++            free_block((void *)ptr, kind);
+             CCout_of_memory(context);
+         }
+     }
+     p->kind = kind;
+-    p->ptr = ptr;
++    p->ptr = (void *)ptr;
+     p->next = context->allocated_memory;
+     context->allocated_memory = p;
+ }
+ 
+-static void check_and_push_malloc_block(context_type *context, void *ptr) {
+-  check_and_push_common(context, ptr, VM_MALLOC_BLK);
+-}
+-
+-static void check_and_push_string_utf(context_type *context, const char *ptr) {
+-  check_and_push_common(context, (void *)ptr, VM_STRING_UTF);
+-}
+-
+ static void pop_and_free(context_type *context)
+ {
+     alloc_stack_type *p = context->allocated_memory;
+ 
+ 
