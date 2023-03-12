@@ -9,7 +9,7 @@ revision        0
 set build       1
 
 categories      java devel
-maintainers     {@usersxx} openmaintainer
+maintainers     {outlook.com:usersword123 @usersxx} openmaintainer
 platforms       darwin
 license         GPL-2
 supported_archs x86_64 arm64
