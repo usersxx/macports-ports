@@ -47,7 +47,7 @@ post-patch {
     xinstall -m 755 -d ${worksrcpath}/Home
 }
 
-use_configure   no    
+use_configure   no
 
 set jdk_path /Library/Java/JavaVirtualMachines/openjdk11-bootstrap/Contents/Home
 set ant_path ${prefix}/share/java/apache-ant
