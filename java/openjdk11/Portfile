@@ -54,7 +54,7 @@ configure.args      --with-debug-level=release \
                     --with-freetype=system \
                     --with-freetype-include=${prefix}/include/freetype2 \
                     --with-freetype-lib=${prefix}/lib \
-                    --with-import-modules=/Library/Java/extensions/openjfx11/modular-sdk \
+                    --with-import-modules=/Library/Java/Extensions/openjfx11/modular-sdk \
                     --disable-warnings-as-errors \
                     --disable-precompiled-headers \
                     --with-vendor-name="MacPorts" \
