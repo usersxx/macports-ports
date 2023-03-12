@@ -23,7 +23,8 @@ checksums           rmd160  a6516dbb66f8dbaad1311badb31529ca96a7d481 \
                     sha256  f1d1c29ff5ac8254dc81d1635d60f658b6f2b790476acab836ddcb488c8c7fbe \
                     size    105221267
 
-depends_lib         port:freetype
+depends_lib         port:freetype \
+                    port:openjfx17
 depends_build       port:autoconf \
                     port:gmake \
                     port:bash \
@@ -52,6 +53,7 @@ configure.args      --with-debug-level=release \
                     --with-freetype=system \
                     --with-freetype-include=${prefix}/include/freetype2 \
                     --with-freetype-lib=${prefix}/lib \
+                    --with-import-modules=/Library/Java/Extensions/openjfx17/modular-sdk \
                     --disable-precompiled-headers \
                     --disable-warnings-as-errors \
                     --with-vendor-name="MacPorts" \
