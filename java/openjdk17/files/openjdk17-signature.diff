@@ -18,7 +18,6 @@
      # Macosx release build and code signing available.
  
      ################################################################################
-
 --- make/autoconf/basic_tools.m4
 +++ make/autoconf/basic_tools.m4
 @@ -160,23 +160,25 @@
@@ -105,7 +104,6 @@
      UTIL_REQUIRE_PROGS(SETFILE, SetFile)
    fi
    if ! test "x$OPENJDK_TARGET_OS" = "xwindows"; then
-
 --- make/autoconf/compare.sh.in
 +++ make/autoconf/compare.sh.in
 @@ -40,7 +40,6 @@
@@ -235,7 +233,6 @@
 -    AC_SUBST(MACOSX_CODESIGN_MODE)
 -  fi
 -])
-
 --- make/autoconf/spec.gmk.in
 +++ make/autoconf/spec.gmk.in
 @@ -443,8 +443,7 @@
@@ -540,7 +537,6 @@
 +      bagDestroyBag(to_delete);
 +    }
 +}
-
 --- src/java.base/share/native/libverify/check_code.c
 +++ src/java.base/share/native/libverify/check_code.c
 @@ -605,7 +604,7 @@
