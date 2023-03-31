@@ -190,9 +190,9 @@ if {![variant_isset core] && ![variant_isset zeroshark] && ![variant_isset zero]
     if {${os.major} < 14} {
         default_variants-append +zero
     } else {
-        if {${configure.build_arch} eq "x86_64"}
+        if {${configure.build_arch} eq "x86_64"} {
             default_variants-append +server
-        } elseif {${configure.build_arch} eq "arm64"}
+        } elseif {${configure.build_arch} eq "arm64"} {
             default_variants-append +zero
         }
     }
