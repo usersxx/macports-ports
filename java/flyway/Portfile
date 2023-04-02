@@ -29,7 +29,7 @@ checksums           rmd160  a402ee9a4d69e0e0e190e2b346407ff78f552f8e \
                     size    84175079
 
 java.version        1.8+
-java.fallback       openjdk8
+java.fallback       openjdk11
 
 use_configure       no
 
