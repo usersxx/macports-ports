@@ -12,7 +12,7 @@ set update 362
 # Set to the build of the 'jdk8u${update}-b${build}' tag that corresponds to the latest tag with '-ga'
 set build 09
 version             ${major}u${update}
-revision            0
+revision            1
 categories          java devel
 platforms           darwin
 supported_archs     ppc x86_64 arm64
