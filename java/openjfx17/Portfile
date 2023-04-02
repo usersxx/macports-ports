@@ -30,7 +30,7 @@ depends_build   port:openjdk17-bootstrap \
                 port:cmake \
                 port:ninja
 
-master_sites    https://git.openjdk.java.net/jfx17u/archive/refs/tags 
+master_sites    https://git.openjdk.org/jfx17u/archive/refs/tags 
 distname        ${version}+${build}
 checksums       rmd160  52ac262b1f9ce52c7cc378abbaa9672313b81abf \
                 sha256  e754df000201cb3164e20f2d68f4634f38f984f3aebb5b719d63ecaf61a625c6 \
