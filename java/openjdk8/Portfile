@@ -63,7 +63,10 @@ if {${configure.build_arch} eq "ppc"} {
     set datamodel 32
 } elseif {${configure.build_arch} eq "x86_64"} {
     set datamodel 64
+} elseif {${configure.build_arch} eq "arm64"} {
+    set datamodel 64
 }
+
 configure.cmd       ${prefix}/bin/bash ./configure
 configure.pre_args  --prefix=${tpath}
 set bug_url "https://trac.macports.org/newticket?port=${name}"
