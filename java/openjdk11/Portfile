@@ -6,7 +6,7 @@ name                openjdk11
 # https://github.com/openjdk/jdk11u/tags
 version             11.0.18
 set build 10
-revision            0
+revision            1
 categories          java devel
 supported_archs     x86_64 arm64
 license             GPL-2+
@@ -14,8 +14,8 @@ maintainers         {outlook.com:usersword123 @usersxx} openmaintainer
 description         OpenJDK 11
 long_description    JDK 11 builds of OpenJDK, the Open-Source implementation \
                     of the Java Platform, Standard Edition, and related projects.
-homepage            https://openjdk.java.net/
-master_sites        https://git.openjdk.java.net/jdk11u/archive/refs/tags
+homepage            https://openjdk.org/
+master_sites        https://git.openjdk.org/jdk11u/archive/refs/tags
 distname            jdk-${version}-ga
 worksrcdir          jdk11u-${distname}
 
