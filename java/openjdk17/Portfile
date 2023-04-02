@@ -62,8 +62,6 @@ configure.args      --with-debug-level=release \
                     --with-vendor-vm-bug-url="${bug_url}" \
                     --with-conf-name=release
 
-patchfiles          openjdk17-signature.diff
-
 variant release \
     conflicts debug optimized \
     description {OpenJDK with no debug information, all optimizations and no asserts} {
