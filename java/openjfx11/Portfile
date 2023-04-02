@@ -21,7 +21,7 @@ long_description OpenJFX is an open source, next generation client application p
                  It is a modern, efficient, and fully featured toolkit for developing rich client \
                  applications.
 
-homepage        https://openjfx.io/
+homepage        https://openjdk.org/projects/openjfx/
 
 depends_build   port:openjdk11-bootstrap \
                 port:gradle \
@@ -30,7 +30,7 @@ depends_build   port:openjdk11-bootstrap \
                 port:cmake \
                 port:ninja
 
-master_sites    https://git.openjdk.java.net/jfx11u/archive/refs/tags 
+master_sites    https://git.openjdk.org/jfx11u/archive/refs/tags 
 distname        ${version}+${build}
 checksums       rmd160  2c436e1a0bcabc0bc1a69da0775da32809203642 \
                 sha256  20745cfdd9bfd48e2c0e9b760229fd252f62eb9d2e23a87dea1e4aa14c59b50e \
