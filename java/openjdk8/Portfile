@@ -171,8 +171,12 @@ variant zero \
     set archuc [string toupper ${configure.build_arch}]
     depends_lib-append         port:libffi
     configure.args-append  --with-jvm-variants=zero \
-                           --with-extra-cflags="${configure.cflags} -I${prefix}/include -arch ${configure.build_arch}"
-    configure.args-delete  --with-extra-cflags="${configure.cflags}"
+                           --with-extra-cflags="${configure.cflags} -I${prefix}/include -arch ${configure.build_arch}" \
+                           --with-extra-cxxflags="${configure.cxxflags} -arch ${configure.build_arch}" \
+                           --with-extra-ldflags="${configure.ldflags} -I${prefix}/lib -arch ${configure.build_arch}"
+    configure.args-delete  --with-extra-cflags="${configure.cflags}" \
+                           --with-extra-cxxflags="${configure.cxxflags}" \
+                           --with-extra-ldflags="${configure.ldflags}"
 }
 
 variant zeroshark \
@@ -180,9 +184,13 @@ variant zeroshark \
     description {JVM with no assembler, zero interpreter and shark/llvm compiler backend} {
     set archuc [string toupper ${configure.build_arch}]
     depends_lib-append         port:libffi
-    configure.args-append  --with-jvm-variants=zero \
-                           --with-extra-cflags="${configure.cflags} -I${prefix}/include -arch ${configure.build_arch}"
-    configure.args-delete  --with-extra-cflags="${configure.cflags}"
+    configure.args-append  --with-jvm-variants=zeroshark \
+                           --with-extra-cflags="${configure.cflags} -I${prefix}/include -arch ${configure.build_arch}" \
+                           --with-extra-cxxflags="${configure.cxxflags} -arch ${configure.build_arch}" \
+                           --with-extra-ldflags="${configure.ldflags} -I${prefix}/lib -arch ${configure.build_arch}"
+    configure.args-delete  --with-extra-cflags="${configure.cflags}" \
+                           --with-extra-cxxflags="${configure.cxxflags}" \
+                           --with-extra-ldflags="${configure.ldflags}"
 }
 
 if {![variant_isset debug] && ![variant_isset release]} {
