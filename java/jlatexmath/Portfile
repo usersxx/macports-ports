@@ -33,7 +33,7 @@ extract {
 }
 
 java.version        1.7+
-java.fallback       openjdk8
+java.fallback       openjdk11
 
 use_configure       no
 build {}
