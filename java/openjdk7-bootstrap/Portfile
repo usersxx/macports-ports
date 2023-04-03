@@ -40,6 +40,11 @@ if {${configure.build_arch} eq "ppc"} {
 
     distname            it-tidalwave-openjdk7-b222-20111220-1-macosx-intel
     distfiles           ${distname}.tgz
+    depends_extract     port:gnutar
+    extract {
+        system -W ${workpath} "mkdir -p ${worksrcpath}/build"
+        system -W ${workpath} "tar -xvf ${distpath}/${distfiles} -C ${worksrcpath}"
+    }
     worksrcdir          ${distname}
 }
 use_xcode           no
