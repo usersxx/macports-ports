@@ -1,0 +1,29 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+
+name                swift5
+version             5.8
+revision            0
+categories          lang
+platforms           darwin
+supported_archs     x86_64 arm64
+license             
+maintainers         
+description         
+long_description    
+homepage            https://www.swift.org/
+
+use_xcode           yes
+
+fetch.type          git
+git.url             https://github.com/apple/swift.git
+git.branch             swift-5.8-RELEASE
+post-fetch {
+    system -W ${worksrcpath} "utils/update-checkout --clone-with-ssh"
+}
+
+depends_build       port:cmake \
+                    port:ninja \
+                    port:sccache \
+                    port:python311
