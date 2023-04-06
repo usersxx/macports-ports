@@ -25,14 +25,13 @@ fetch.type          git
 git.url             https://github.com/apple/swift.git
 git.branch             swift-5.8-RELEASE
 
-fetch {
-    system -W ${workpath} "mkdir -p ${worksrcpath}/swift-project"
-    system -W ${worksrcpath}/swift-project "${prefix}/bin/git clone ${git.branch} --single-branch ${git.url}"
-}
+worksrcdir          ${name}-project
 
-post-fetch {
-    system -W ${worksrcpath}/swift-project "utils/update-checkout --clone"
-    system -W ${worksrcpath}/swift-project "utils/update-checkout --tag ${git.branch}"
+fetch {
+    system -W ${workpath} "mkdir ${worksrcdir}"
+    system -W ${worksrcpath} "${prefix}/bin/git clone -b ${git.branch} --single-branch https://github.com/apple/swift.git swift"
+    system -W ${worksrcpath}/swift "utils/update-checkout --clone"
+    system -W ${worksrcpath}/swift "utils/update-checkout --tag ${git.branch}"
 }
 
 depends_build       port:cmake \
@@ -44,7 +43,8 @@ configure {}
 build.cmd           utils/build-script
 build.args          --skip-build-benchmarks \
                     --skip-ios --skip-watchos --skip-tvos --swift-darwin-supported-archs "${configure.build_arch}" \
-                    --sccache --release --swift-disable-dead-stripping
+                    --sccache --release --swift-disable-dead-stripping \
+                    --build-subdir=${name}
 
 build.pre_args      
 build.post_args     
@@ -57,6 +57,6 @@ if {${configure.build_arch} eq "arm64" } {
 
 destroot {
     xinstall ${destroot}${prefix}/share/lang
-    move ${worksrcpath}/swift-project/build/Ninja-RelWithDebInfoAssert/swift-macosx-${configure.build_arch} ${destroot}${prefix}/share/lang/${name}
+    copy ${worksrcpath}/swift-project/build/Ninja-Release/${name} ${destroot}${prefix}/share/lang/${name}
     ln -s ../share/lang/${name}/bin/swift-frontend ${destroot}${prefix}/bin/swift-frontend
 }
