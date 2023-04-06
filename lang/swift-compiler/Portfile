@@ -44,7 +44,7 @@ configure {}
 build.cmd           utils/build-script
 build.args          --skip-build-benchmarks \
                     --skip-ios --skip-watchos --skip-tvos --swift-darwin-supported-archs "${configure.build_arch}" \
-                    --sccache --release-debuginfo --swift-disable-dead-stripping
+                    --sccache --release --swift-disable-dead-stripping
 
 build.pre_args      
 build.post_args     
