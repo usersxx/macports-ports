@@ -56,5 +56,7 @@ if {${configure.build_arch} eq "arm64" } {
 }
 
 destroot {
-    
+    xinstall ${destroot}${prefix}/share/lang
+    move ${worksrcpath}/swift-project/build/Ninja-RelWithDebInfoAssert/swift-macosx-${configure.build_arch} ${destroot}${prefix}/share/lang/${name}
+    ln -s ../share/lang/${name}/bin/swift-frontend ${destroot}${prefix}/bin/swift-frontend
 }
