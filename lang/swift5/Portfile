@@ -8,10 +8,12 @@ revision            0
 categories          lang
 platforms           darwin
 supported_archs     x86_64 arm64
-license             
-maintainers         
-description         
-long_description    
+license             Apache-2
+maintainers         nomaintainer
+description         The Swift Programming Language
+long_description    Swift is a high-performance system programming language.  It has a clean \
+                    and modern syntax, offers seamless access to existing C and Objective-C code \
+                    and frameworks, and is memory-safe by default. 
 homepage            https://www.swift.org/
 
 use_xcode           yes
