@@ -27,7 +27,7 @@ git.branch             swift-5.8-RELEASE
 
 fetch {
     system -W ${workpath} "mkdir -p ${worksrcpath}/swift-project"
-    system -W ${worksrcpath}/swift-project "${prefix}/bin/git fetch ${git.url} ${git.branch}"
+    system -W ${worksrcpath}/swift-project "${prefix}/bin/git clone ${git.branch} --single-branch ${git.url}"
 }
 
 post-fetch {
