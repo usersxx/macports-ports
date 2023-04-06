@@ -29,7 +29,7 @@ worksrcdir          swift-project
 
 fetch {
     system -W ${workpath} "mkdir ${worksrcdir}"
-    system -W ${worksrcpath} "${prefix}/bin/git clone -b ${git.branch} --single-branch ${git.url} swift"
+    system -W ${worksrcpath} "${prefix}/bin/git clone -b ${git.branch} ${git.url} swift"
     system -W ${worksrcpath}/swift "utils/update-checkout --clone"
     system -W ${worksrcpath}/swift "utils/update-checkout --tag ${git.branch}"
 }
