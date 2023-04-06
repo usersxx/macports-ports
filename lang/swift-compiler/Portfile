@@ -2,7 +2,7 @@
 
 PortSystem          1.0
 
-name                swift5
+name                swift-compiler
 version             5.8
 revision            0
 categories          lang
@@ -21,6 +21,7 @@ use_xcode           yes
 fetch.type          git
 git.url             https://github.com/apple/swift.git
 git.branch             swift-5.8-RELEASE
+
 post-fetch {
     system -W ${worksrcpath} "utils/update-checkout --clone-with-ssh"
 }
@@ -29,3 +30,23 @@ depends_build       port:cmake \
                     port:ninja \
                     port:sccache \
                     port:python311
+
+configure {}
+
+build.cmd           utils/build-script
+build.args          --skip-build-benchmarks \
+                    --skip-ios --skip-watchos --skip-tvos --swift-darwin-supported-archs "${configure.build_arch}" \
+                    --sccache --release-debuginfo --swift-disable-dead-stripping
+
+build.pre_args      
+build.post_args     
+build.target        
+use_parallel_build  no
+
+if {${configure.build_arch} eq "x86_64" } {
+    build.args-append          --bootstrapping=off
+}
+
+destroot {
+    
+}
