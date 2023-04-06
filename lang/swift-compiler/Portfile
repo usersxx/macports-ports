@@ -18,18 +18,26 @@ homepage            https://www.swift.org/
 
 use_xcode           yes
 
+depends_fetch       port:git \
+                    port:python311
+
 fetch.type          git
 git.url             https://github.com/apple/swift.git
 git.branch             swift-5.8-RELEASE
 
+fetch {
+    system -W ${workpath} "mkdir -p ${worksrcpath}/swift-project"
+    system -W ${worksrcpath}/swift-project "${prefix}/bin/git -b ${git.branch} --single-branch ${git.url}"
+}
+
 post-fetch {
-    system -W ${worksrcpath} "utils/update-checkout --clone-with-ssh"
+    system -W ${worksrcpath}/swift-project "utils/update-checkout --clone"
+    system -W ${worksrcpath}/swift-project "utils/update-checkout --tag ${git.branch}"
 }
 
 depends_build       port:cmake \
                     port:ninja \
-                    port:sccache \
-                    port:python311
+                    port:sccache
 
 configure {}
 
@@ -43,7 +51,7 @@ build.post_args
 build.target        
 use_parallel_build  no
 
-if {${configure.build_arch} eq "x86_64" } {
+if {${configure.build_arch} eq "arm64" } {
     build.args-append          --bootstrapping=off
 }
 
