@@ -37,17 +37,13 @@ patchfiles          0001-8181503-Can-t-compile-hotspot-with-c-11.patch \
                     0005-os_perf_bsd-allow-to-compile-with-ZERO-CPU.patch \
                     0006-Disable-C-11-warnings.patch \
                     0007-Added-macosx-bin-zero-jvm.cfg.patch \
-                    0008-ExtendedOptionsImpl.c-define-TCP_KEEPINTVL-and-TCP_K.patch
+                    0008-ExtendedOptionsImpl.c-define-TCP_KEEPINTVL-and-TCP_K.patch \
+                    Support-arm64-with-zero-assembler.diff
 
 # NSFullSizeContentViewWindowMask is available since 10.10
 if {${os.platform} eq "darwin" && ${os.major} < 14} {
     patchfiles-append \
                     0009-Revert-8211301-macos-support-full-window-content-opt.patch
-}
-
-if {${configure.build_arch} eq "arm64"} {
-    patchfiles-append \
-                    Support-arm64-with-zero-assembler.diff
 }
 
 depends_lib         port:freetype
