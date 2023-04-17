@@ -16,15 +16,15 @@ homepage            https://jdk.java.net/
 master_sites        https://download.java.net/java/GA/jdk${version}/877d6127e982470ba2a7faa31cc93d04/${build}/GPL
 
 if {${configure.build_arch} eq "x86_64"} {
-    checksums           rmd160  22047e850be0cfafb6d16a9bf6d08914ca724c9a \
-                        sha256  18e11cf9bbc6f584031e801b11ae05a233c32086f8e1b84eb8a1e9bb8e1f5d90 \
-                        size    184007871
-    distname            openjdk-19_macos-x64_bin
+    distname            openjdk-${version}_macos-x64_bin
+    checksums           rmd160  d69263ad5a95431ea6f44138e7c81f6367e3b597 \
+                        sha256  bfd33f5b2590fd552ae2d9231340c6b4704a872f927dce1c52860b78c49a5a11 \
+                        size    192323254
 } elseif {${configure.build_arch} eq "arm64"} {
-    checksums           rmd160  fbcfd2cc8d00322902f7c8c257985e43130d097a \
-                        sha256  b5bf6377aabdc935bd72b36c494e178b12186b0e1f4be50f35134daa33bda052 \
-                        size    181735146
-    distname            openjdk-19_macos-aarch64_bin
+    distname            openjdk-${version}_macos-aarch64_bin
+    checksums           rmd160  ab7a706471109466c270a3b219f55736b6743970 \
+                        sha256  6691c199fdc6d71826f37d89d2e1a2089ba8bdd98b7001c1d4e8d5d01d6b022b \
+                        size    190416515
 }
 
 use_xcode           no
