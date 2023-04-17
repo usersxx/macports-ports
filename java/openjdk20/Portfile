@@ -3,9 +3,9 @@
 PortSystem          1.0
 
 name                openjdk20
-# https://github.com/openjdk/jdk20/tags
+# https://github.com/openjdk/jdk20u/tags
 version             20
-set build 10
+set build 36
 revision            0
 categories          java devel
 supported_archs     x86_64 arm64
@@ -15,13 +15,13 @@ description         OpenJDK 20
 long_description    JDK 20 builds of OpenJDK, the Open-Source implementation \
                     of the Java Platform, Standard Edition, and related projects.
 homepage            https://openjdk.java.net/
-master_sites        https://git.openjdk.java.net/jdk20/archive/refs/tags
+master_sites        https://git.openjdk.java.net/jdk20u/archive/refs/tags
 distname            jdk-${version}-ga
 worksrcdir          jdk20-[string map {+ -} ${distname}]
 
-checksums           rmd160  a6516dbb66f8dbaad1311badb31529ca96a7d481 \
-                    sha256  f1d1c29ff5ac8254dc81d1635d60f658b6f2b790476acab836ddcb488c8c7fbe \
-                    size    105221267
+checksums           rmd160  0ddb2b5ff4aa62084911b69bf9951cf05878d7e9 \
+                    sha256  215767be88a18af00440d5241960a3937237e77b938db4485bdb1c9bb414972e \
+                    size    109419330
 
 depends_lib         port:freetype
 depends_build       port:autoconf \
@@ -48,10 +48,11 @@ configure.args      --with-debug-level=release \
                     --with-extra-cflags="${configure.cflags}" \
                     --with-extra-cxxflags="${configure.cxxflags}" \
                     --with-extra-ldflags="${configure.ldflags}" \
-                    --with-boot-jdk=/Library/Java/JavaVirtualMachines/openjdk17-bootstrap/Contents/Home \
+                    --with-boot-jdk=/Library/Java/JavaVirtualMachines/openjdk19-bootstrap/Contents/Home \
                     --with-freetype=system \
                     --with-freetype-include=${prefix}/include/freetype2 \
                     --with-freetype-lib=${prefix}/lib \
+                    --with-import-modules=/Library/Java/Extensions/openjfx20/modular-sdk \
                     --disable-precompiled-headers \
                     --disable-warnings-as-errors \
                     --with-vendor-name="MacPorts" \
