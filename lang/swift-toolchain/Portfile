@@ -46,9 +46,7 @@ build.cmd           ./utils/build-script
 build.args          --skip-build-benchmarks \
                     --skip-ios --skip-watchos --skip-tvos --swift-darwin-supported-archs "${configure.build_arch}" \
                     --sccache --release --swift-disable-dead-stripping \
-                    --build-subdir=${name} \
-                    --clean \
-                    install_destdir=${worksrcpath}/build
+                    --build-subdir=${name}
                     
 
 build.pre_args      
@@ -65,5 +63,7 @@ if {${configure.build_arch} eq "arm64" } {
 }
 
 destroot {
-    
+    xinstall ${destroot}${prefix}/share/lang
+    copy ${worksrcpath}/swift-project/build/Ninja-Release/${name} ${destroot}${prefix}/share/lang/${name}
+    ln -s ../share/lang/${name}/bin/swift-frontend ${destroot}${prefix}/bin/swift-frontend
 }
