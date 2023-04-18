@@ -128,17 +128,6 @@ use_parallel_build  no
 set jdkn jdk-${version}.jdk
 set bundle_dir build/release/images/jdk-bundle/${jdkn}/Contents
 
-post-build {
-    xinstall -m 755 -d ${destroot}${bundle_dir}/Classes
-    xinstall -m 755 -d ${destroot}${bundle_dir}/Commands
-    xinstall -m 755 -d ${destroot}${bundle_dir}/Libraries
-    system -W ${worksrcpath}/${bundle_dir} "cd ${worksrcpath}/${bundle_dir}/Home && ln -s ../Home/lib/*.jar ${worksrcpath}/${bundle_dir}/Classes && cd ${worksrcpath}"
-    system -W ${worksrcpath}/${bundle_dir} "cd ${worksrcpath}/${bundle_dir}/Home && ln -s ../Home/bin/* ${worksrcpath}/${bundle_dir}/Commands && cd ${worksrcpath}"
-    system -W ${worksrcpath}/${bundle_dir} "cd ${worksrcpath}/${bundle_dir}/Home && ln -s ../Home/lib/*.dylib ${worksrcpath}/${bundle_dir}/Libraries && cd ${worksrcpath}"
-    system -W ${worksrcpath}/${bundle_dir} "cd ${worksrcpath}/${bundle_dir}/Home && ln -s ../Home/lib/classlist ${worksrcpath}/${bundle_dir}/Libraries && cd ${worksrcpath}"
-    system -W ${worksrcpath}/${bundle_dir} "cd ${worksrcpath}/${bundle_dir}/Home && ln -s ../ ${worksrcpath}/${bundle_dir}/bundle && cd ${worksrcpath}"
-}
-
 test.run            yes
 test.cmd            ${bundle_dir}/Home/bin/java
 test.target         --version
