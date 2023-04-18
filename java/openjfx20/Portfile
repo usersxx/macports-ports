@@ -2,7 +2,7 @@
 
 PortSystem      1.0
 
-name            openjfx11
+name            openjfx20
 version         20
 revision        0
 
@@ -58,7 +58,7 @@ post-patch {
 
 use_configure   no
 
-set jdk_path /Library/Java/JavaVirtualMachines/openjdk11-bootstrap/Contents/Home
+set jdk_path /Library/Java/JavaVirtualMachines/openjdk19-bootstrap/Contents/Home
 set ant_path ${prefix}/share/java/apache-ant
 set gradle_home_path ${worksrcpath}/Home
 
