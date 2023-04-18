@@ -2,7 +2,7 @@
 
 PortSystem          1.0
 
-name                swift-toolchain
+name                swift
 version             5.8
 revision            0
 categories          lang
@@ -23,7 +23,7 @@ depends_fetch       port:git \
 
 fetch.type          git
 git.url             https://github.com/apple/swift.git
-git.branch             swift-5.8-RELEASE
+git.branch             ${name}-${version}-RELEASE
 
 worksrcdir          swift-project
 
@@ -37,7 +37,6 @@ fetch {
 
 depends_build       port:cmake \
                     port:ninja \
-                    port:sccache \
                     port:python311
 
 use_configure       no
@@ -45,7 +44,7 @@ use_configure       no
 build.cmd           ./utils/build-script
 build.args          --skip-build-benchmarks \
                     --skip-ios --skip-watchos --skip-tvos --swift-darwin-supported-archs "${configure.build_arch}" \
-                    --sccache --release --swift-disable-dead-stripping \
+                    --release --swift-disable-dead-stripping \
                     --build-subdir=${name}
                     
 
