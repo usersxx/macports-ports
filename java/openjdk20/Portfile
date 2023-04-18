@@ -17,7 +17,7 @@ long_description    JDK 20 builds of OpenJDK, the Open-Source implementation \
 homepage            https://openjdk.java.net/
 master_sites        https://git.openjdk.java.net/jdk20u/archive/refs/tags
 distname            jdk-${version}+${build}
-worksrcdir          jdk20-[string map {+ -} ${distname}]
+worksrcdir          jdk20u-[string map {+ -} ${distname}]
 
 checksums           rmd160  0ddb2b5ff4aa62084911b69bf9951cf05878d7e9 \
                     sha256  215767be88a18af00440d5241960a3937237e77b938db4485bdb1c9bb414972e \
