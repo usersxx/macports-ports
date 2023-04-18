@@ -43,10 +43,13 @@ use_configure       no
 
 build.cmd           ./utils/build-script
 build.args          --skip-build-benchmarks \
-                    --skip-ios --skip-watchos --skip-tvos --swift-darwin-supported-archs "${configure.build_arch}" \
+                    --ios --tvos --watchos --swift-darwin-supported-archs "${configure.build_arch}" \
                     --release --swift-disable-dead-stripping \
-                    --build-subdir=${name}
-                    
+                    --build-subdir=${name} \
+                    --lldb --llbuild \
+                    --swiftpm --swift-driver --swiftsyntax --swiftformat --playgroundsupport \
+                    --indexstore-db --sourcekit-lsp --swiftdocc --swiftsyntax-verify-generated-files \
+                    --compiler-vendor=macports --infer-cross-compile-hosts-on-darwin --lldb-build-type=Release --build-ninja
 
 build.pre_args      
 build.post_args     
