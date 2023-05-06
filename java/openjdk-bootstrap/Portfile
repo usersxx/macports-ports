@@ -1,0 +1,143 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+
+name                openjdk-bootstrap
+version             1.0
+revision            0
+maintainers         nomaintainer
+license             GPL-2+
+
+if {${subport} eq ${name}} {
+    PortGroup          stub 1.0
+
+    supported_archs     noarch
+    set meta true
+    description        "Meta port encompassing binary OpenJDK releases"
+    long_description   {*}${description}
+    homepage           
+
+    notes {
+        The openjdk-distributions port is not installable, but recommends users to install\
+        the latest Long Term Support (LTS) subport
+    }
+}
+
+subport openjdk7-ppc {
+    version             7u241
+    revision            0
+    supported_archs     ppc ppc64
+    homepage            
+    description         OpenJDK 7 ppc
+    long_description    {*}${description}
+    master_sites        https://macintoshgarden.org/sites/macintoshgarden.org/files/apps \
+                        http://mirror.macintosharchive.org/macintoshgarden.org/files/apps \
+                        http://old.macintosh.garden/apps \
+                        ftp://repo1.macintoshgarden.org/Garden/apps
+    checksums           rmd160  872bea18c8c153d0509d2d18ebe6da6a71161e3f \
+                        sha256  0d3ffaa7c5a2873ec26fc97ce1f592bafa18e3ae52605f0a2ba039a75d4860a8 \
+                        size    54392585
+    distname            openjdk7u2-macppc-fcs-${build}
+    distfiles           ${distname}.tar_.bz2
+    use_bzip2           yes
+    worksrcdir          ${distname}
+    use_xcode           no
+    use_configure       no
+    depends_lib         port:freetype
+    build {}
+
+    set path /Library/Java/JavaVirtualMachines/${name}
+    destroot {
+        xinstall -m 755 -d ${destroot}${prefix}${path}
+        copy ${worksrcpath}/ASSEMBLY_EXCEPTION ${destroot}${prefix}${path}
+        copy ${worksrcpath}/bin ${destroot}${prefix}${path}
+        copy ${worksrcpath}/demo ${destroot}${prefix}${path}
+        copy ${worksrcpath}/include ${destroot}${prefix}${path}
+        copy ${worksrcpath}/jre ${destroot}${prefix}${path}
+        copy ${worksrcpath}/lib ${destroot}${prefix}${path}
+        copy ${worksrcpath}/LICENSE ${destroot}${prefix}${path}
+        copy ${worksrcpath}/man ${destroot}${prefix}${path}
+        copy ${worksrcpath}/release ${destroot}${prefix}${path}
+        copy ${worksrcpath}/sample ${destroot}${prefix}${path}
+        copy ${worksrcpath}/src.zip ${destroot}${prefix}${path}
+        copy ${worksrcpath}/THIRD_PARTY_README ${destroot}${prefix}${path}
+    }
+    destroot.violate_mtree  yes
+
+    post-destroot {
+        system "install_name_tool -change /usr/X11/lib/libfreetype.6.dylib ${prefix}/lib/libfreetype.6.dylib ${destroot}${path}/jre/lib/ppc/libfontmanager.dylib"
+    }
+}
+
+subport openjdk7-bootstrap {
+    version             7u241
+    revision            0
+    supported_archs     ppc ppc64 i386 x86_64
+    description         OpenJDK 7 bootstrap
+    long_description    {*}${description}
+    homepage            https://openjdk.java.net/
+    master_sites        https://git.openjdk.java.net/jdk7u/archive/refs/tags
+    distname            jdk${version}-ga
+    worksrcdir          jdk7u-${distname}
+    checksums           rmd160  08fbd7e138f064952e87bc50a3fdd2acbfa14011 \
+                        sha256  824e636654bafb726bab0cac93a04055a75b2aaf04a6ddf36195b997d783110e \
+                        size    109288810
+    depends_lib         port:freetype
+    depends_build       port:gmake \
+                        port:pkgconfig \
+                        port:apache-ant
+    use_configure       no
+    if {${configure.build_arch} eq "i386"} {
+        depends_build-append       port:openjdk6-apple
+        build.type          gnu
+        build.args          ALLOW_DOWNLOADS=true \
+                            ALT_BOOTDIR=${prefix}/Library/Java/JavaVirtualMachines/1.6.0.jdk \
+                            ALT_JDK_IMPORT_PATH=${prefix}/Library/Java/JavaVirtualMachines/1.6.0.jdk \
+                            ALT_FREETYPE_HEADERS_PATH=${prefix}/include/freetype2 \
+                            ALT_FREETYPE_LIB_PATH=${prefix}/lib \
+                            ANT_HOME=${prefix}/share/java/apache-ant \
+                            NO_DOCS=true
+        use_parallel_build  no
+        set jdk_bundle_dir build/bsd-i586/j2sdk-image
+    } elseif {${configure.build_arch} eq "x86_64" {
+        depends_build-append       port:openjdk6-apple
+        build.type          gnu
+        build.args          ALLOW_DOWNLOADS=true \
+                            ALT_BOOTDIR=${prefix}/Library/Java/JavaVirtualMachines/1.6.0.jdk \
+                            ALT_JDK_IMPORT_PATH=${prefix}/Library/Java/JavaVirtualMachines/1.6.0.jdk \
+                            ALT_FREETYPE_HEADERS_PATH=${prefix}/include/freetype2 \
+                            ALT_FREETYPE_LIB_PATH=${prefix}/lib \
+                            ARCH_DATA_MODEL=64 \
+                            ANT_HOME=${prefix}/share/java/apache-ant \
+                            NO_DOCS=true
+        use_parallel_build  no
+        set jdk_bundle_dir build/bsd-amd64/j2sdk-image
+    } elseif {${configure.build_arch} eq "ppc" || ${configure.build_arch} eq "ppc64"} {
+        depends_build-append       port:openjdk7-ppc
+        depends_lib-append         port:libffi
+        build.type          gnu
+        build.args          ALLOW_DOWNLOADS=true \
+                            ALT_BOOTDIR=${prefix}/Library/Java/JavaVirtualMachines/openjdk7-ppc \
+                            ALT_FREETYPE_HEADERS_PATH=${prefix}/include/freetype2 \
+                            ALT_FREETYPE_LIB_PATH=${prefix}/lib \
+                            ALT_CACERTS_FILE=/System/Library/Frameworks/JavaVM.framework/Home/lib/security/cacerts \
+                            LIBFFI_CFLAGS="-I${prefix}/include" \
+                            DEFAULT_LIBPATH="${prefix}/lib" \
+                            NO_DOCS=true \
+                            ZERO_BUILD=true \
+                            ZERO_ENDIANNESS=big \
+                            ZERO_LIBARCH=ppc \
+                            ZERO_ARCHDEF=PPC \
+                            ZERO_ARCHFLAG="-arch ppc"
+        use_parallel_build  no
+        set jdk_bundle_dir build/bsd-ppc/j2sdk-image
+    }
+    set path /Library/Java/JavaVirtualMachines
+    destroot {
+        xinstall -m 755 -d ${destroot}${prefix}${path}
+        move ${worksrcpath}/${jdk_bundle_dir} ${destroot}${prefix}${path}/${name}
+    }
+}
+  
+
+
