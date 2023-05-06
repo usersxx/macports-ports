@@ -14,7 +14,7 @@ supported_archs     x86_64 i386
 license             
 use_xcode           no
 set path ${prefix}/Library
-if {${os.major} = 9} {
+if {${os.major} eq 9} {
     distfiles           JavaForMacOSX10.5Update10.dmg
     master_sites        https://updates.cdn-apple.com/2019/cert/041-87778-20191017-622d65b9-1db2-4d13-bc46-4ab0d7c3240f
     checksums           rmd160  a9856f152646d2fb7e536f7caff15cb6a3a5900f \
@@ -23,7 +23,7 @@ if {${os.major} = 9} {
     worksrcdir          openjdk6-apple
     universal_variant   no
     set install /System/Library/Java
-} elseif {${os.major} = 10} {
+} elseif {${os.major} eq 10} {
     distfiles           JavaForMacOSX10.6.dmg
     master_sites        https://updates.cdn-apple.com/2019/cert/041-90813-20191011-3137b1ba-3379-40e8-8d46-ce9032952939
     checksums           rmd160  4018fdef04eb3e50a57c9eed29ed7601fe839102 \
