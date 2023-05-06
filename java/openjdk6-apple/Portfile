@@ -23,6 +23,7 @@ if {${os.major} eq 9} {
                         size    126236660
     worksrcdir          openjdk6-apple
     universal_variant   no
+    set package JavaForMacOSX10.5Update10.pkg
     set install /System/Library/Java
 } elseif {${os.major} eq 10} {
     distfiles           JavaForMacOSX10.6.dmg
@@ -32,6 +33,7 @@ if {${os.major} eq 9} {
                         size    72873510
     worksrcdir          openjdk6-apple
     universal_variant   yes
+    set package JavaForMacOSX10.6.pkg
     set install /System/Library/Java
 } else {
     distfiles           JavaForOSX.dmg
@@ -41,6 +43,7 @@ if {${os.major} eq 9} {
                         size    51101946
     worksrcdir          openjdk6-apple
     universal_variant   yes
+    set package JavaForOSX.pkg
     set install /Library/Java
 }
 
@@ -55,7 +58,7 @@ extract {
     system -W ${worksrcpath}/dmg "hdiutil detach ${worksrcpath}/dmg/*"
     system -W ${worksrcpath}/pkg "mv ${worksrcpath}/pkg/*.pkg ${worksrcpath}/pkg/jdk${version}.pkg"
     system -W ${worksrcpath}/pkg "${prefix}/bin/xar -xf ${worksrcpath}/pkg/jdk${version}.pkg -C ${worksrcpath}/files"
-    system -W ${worksrcpath} "cpio -i < ${worksrcpath}/files/${distfiles}/Payload"
+    system -W ${worksrcpath} "cpio -i < ${worksrcpath}/files/${package}/Payload"
 }
 use_configure    no
 build {}
