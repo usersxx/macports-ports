@@ -99,7 +99,7 @@ subport openjdk7-bootstrap {
                             NO_DOCS=true
         use_parallel_build  no
         set jdk_bundle_dir build/bsd-i586/j2sdk-image
-    } elseif {${configure.build_arch} eq "x86_64" {
+    } elseif {${configure.build_arch} eq "x86_64"} {
         depends_build-append       port:openjdk6-apple
         build.type          gnu
         build.args          ALLOW_DOWNLOADS=true \
