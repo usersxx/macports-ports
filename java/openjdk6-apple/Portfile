@@ -13,6 +13,7 @@ platforms           darwin
 supported_archs     x86_64 i386
 license             
 use_xcode           no
+depends_extract     port:xar
 set path ${prefix}/Library
 if {${os.major} eq 9} {
     distfiles           JavaForMacOSX10.5Update10.dmg
