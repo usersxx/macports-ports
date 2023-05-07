@@ -87,55 +87,47 @@ subport openjdk7-bootstrap {
                         port:pkgconfig \
                         port:apache-ant
     use_configure       no
+    configure.compiler  gcc
+    build.type          gnu
+    build.args          ALLOW_DOWNLOADS=true \
+                        ALT_BOOTDIR=${prefix}/${bootdir} \
+                        ALT_JDK_IMPORT_PATH=${prefix}/${bootdir} \
+                        ALT_FREETYPE_HEADERS_PATH=${prefix}/include/freetype2 \
+                        ALT_FREETYPE_LIB_PATH=${prefix}/lib \
+                        ANT_HOME=${prefix}/share/java/apache-ant \
+                        NO_DOCS=true
     if {${configure.build_arch} eq "i386"} {
         depends_build-append       port:openjdk6-apple
-        build.type          gnu
-        build.args          ALLOW_DOWNLOADS=true \
-                            ALT_BOOTDIR=${prefix}/Library/Java/JavaVirtualMachines/1.6.0.jdk \
-                            ALT_JDK_IMPORT_PATH=${prefix}/Library/Java/JavaVirtualMachines/1.6.0.jdk \
-                            ALT_FREETYPE_HEADERS_PATH=${prefix}/include/freetype2 \
-                            ALT_FREETYPE_LIB_PATH=${prefix}/lib \
-                            ANT_HOME=${prefix}/share/java/apache-ant \
-                            NO_DOCS=true
         use_parallel_build  no
+        set bootdir /Library/Java/JavaVirtualMachine/1.6.0.jdk
         set jdk_bundle_dir build/bsd-i586/j2sdk-image
     } elseif {${configure.build_arch} eq "x86_64"} {
         depends_build-append       port:openjdk6-apple
         build.type          gnu
-        build.args          ALLOW_DOWNLOADS=true \
-                            ALT_BOOTDIR=${prefix}/Library/Java/JavaVirtualMachines/1.6.0.jdk \
-                            ALT_JDK_IMPORT_PATH=${prefix}/Library/Java/JavaVirtualMachines/1.6.0.jdk \
-                            ALT_FREETYPE_HEADERS_PATH=${prefix}/include/freetype2 \
-                            ALT_FREETYPE_LIB_PATH=${prefix}/lib \
-                            ARCH_DATA_MODEL=64 \
-                            ANT_HOME=${prefix}/share/java/apache-ant \
-                            NO_DOCS=true
+        build.args-append          ARCH_DATA_MODEL=64
         use_parallel_build  no
+        set bootdir /Library/Java/JavaVirtualMachine/1.6.0.jdk
         set jdk_bundle_dir build/bsd-amd64/j2sdk-image
     } elseif {${configure.build_arch} eq "ppc" || ${configure.build_arch} eq "ppc64"} {
         depends_build-append       port:openjdk7-ppc
         depends_lib-append         port:libffi
-        build.type          gnu
-        build.args          ALLOW_DOWNLOADS=true \
-                            ALT_BOOTDIR=${prefix}/Library/Java/JavaVirtualMachines/openjdk7-ppc \
-                            ALT_FREETYPE_HEADERS_PATH=${prefix}/include/freetype2 \
-                            ALT_FREETYPE_LIB_PATH=${prefix}/lib \
-                            ALT_CACERTS_FILE=/System/Library/Frameworks/JavaVM.framework/Home/lib/security/cacerts \
-                            LIBFFI_CFLAGS="-I${prefix}/include" \
-                            DEFAULT_LIBPATH="${prefix}/lib" \
-                            NO_DOCS=true \
-                            ZERO_BUILD=true \
-                            ZERO_ENDIANNESS=big \
-                            ZERO_LIBARCH=ppc \
-                            ZERO_ARCHDEF=PPC \
-                            ZERO_ARCHFLAG="-arch ppc"
+        build.args-append          ALT_CACERTS_FILE=/System/Library/Frameworks/JavaVM.framework/Home/lib/security/cacerts \
+                                   LIBFFI_CFLAGS="-I${prefix}/include" \
+                                   DEFAULT_LIBPATH="${prefix}/lib" \
+                                   NO_DOCS=true \
+                                   ZERO_BUILD=true \
+                                   ZERO_ENDIANNESS=big \
+                                   ZERO_LIBARCH=ppc \
+                                   ZERO_ARCHDEF=PPC \
+                                   ZERO_ARCHFLAG="-arch ppc"
         use_parallel_build  no
-        set jdk_bundle_dir build/bsd-ppc/j2sdk-image
+        set bootdir /Library/Java/JavaVirtualMachine/openjdk7-ppc
+        set jdk_bundle_dir build/bsd-zero/j2sdk-image
     }
-    set path /Library/Java/JavaVirtualMachines
+    set path ${prefix}/Library/Java/JavaVirtualMachines
     destroot {
-        xinstall -m 755 -d ${destroot}${prefix}${path}
-        move ${worksrcpath}/${jdk_bundle_dir} ${destroot}${prefix}${path}/${name}
+        xinstall -m 755 -d ${destroot}${path}
+        move ${worksrcpath}/${jdk_bundle_dir} ${destroot}${path}/${name}
     }
 }
   
