@@ -124,7 +124,7 @@ subport openjdk7-bootstrap {
                                    ZERO_ARCHFLAG="-arch ppc"
         use_parallel_build  no
         set bootdir /Library/Java/JavaVirtualMachine/openjdk7-ppc
-        set jdk_bundle_dir build/bsd-zero/j2sdk-image
+        set jdk_bundle_dir build/bsd-ppc/j2sdk-image
     }
     set path ${prefix}/Library/Java/JavaVirtualMachines
     destroot {
