@@ -28,6 +28,7 @@ subport openjdk7-ppc {
     revision            0
     supported_archs     ppc ppc64
     homepage            
+    set build 2012-03-14
     description         OpenJDK 7 ppc
     long_description    {*}${description}
     master_sites        https://macintoshgarden.org/sites/macintoshgarden.org/files/apps \
@@ -45,6 +46,7 @@ subport openjdk7-ppc {
     use_configure       no
     depends_lib         port:freetype
     build {}
+
 
     set path /Library/Java/JavaVirtualMachines/${name}
     destroot {
