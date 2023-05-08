@@ -48,21 +48,21 @@ subport openjdk7-ppc {
     build {}
 
 
-    set path /Library/Java/JavaVirtualMachines/${name}
+    set path ${prefix}/Library/Java/JavaVirtualMachines/${name}
     destroot {
-        xinstall -m 755 -d ${destroot}${prefix}${path}
-        copy ${worksrcpath}/ASSEMBLY_EXCEPTION ${destroot}${prefix}${path}
-        copy ${worksrcpath}/bin ${destroot}${prefix}${path}
-        copy ${worksrcpath}/demo ${destroot}${prefix}${path}
-        copy ${worksrcpath}/include ${destroot}${prefix}${path}
-        copy ${worksrcpath}/jre ${destroot}${prefix}${path}
-        copy ${worksrcpath}/lib ${destroot}${prefix}${path}
-        copy ${worksrcpath}/LICENSE ${destroot}${prefix}${path}
-        copy ${worksrcpath}/man ${destroot}${prefix}${path}
-        copy ${worksrcpath}/release ${destroot}${prefix}${path}
-        copy ${worksrcpath}/sample ${destroot}${prefix}${path}
-        copy ${worksrcpath}/src.zip ${destroot}${prefix}${path}
-        copy ${worksrcpath}/THIRD_PARTY_README ${destroot}${prefix}${path}
+        xinstall -m 755 -d ${destroot}${path}
+        copy ${worksrcpath}/ASSEMBLY_EXCEPTION ${destroot}${path}
+        copy ${worksrcpath}/bin ${destroot}${path}
+        copy ${worksrcpath}/demo ${destroot}${path}
+        copy ${worksrcpath}/include ${destroot}${path}
+        copy ${worksrcpath}/jre ${destroot}${path}
+        copy ${worksrcpath}/lib ${destroot}${path}
+        copy ${worksrcpath}/LICENSE ${destroot}${path}
+        copy ${worksrcpath}/man ${destroot}${path}
+        copy ${worksrcpath}/release ${destroot}${path}
+        copy ${worksrcpath}/sample ${destroot}${path}
+        copy ${worksrcpath}/src.zip ${destroot}${path}
+        copy ${worksrcpath}/THIRD_PARTY_README ${destroot}${path}
     }
     destroot.violate_mtree  yes
 
@@ -88,6 +88,14 @@ subport openjdk7-bootstrap {
     depends_build       port:gmake \
                         port:pkgconfig \
                         port:apache-ant
+    if {${configure.build_arch} eq "i386" || ${configure.build_arch} eq "x86_64"} {
+        depends_build-append       port:openjdk6-apple
+        set bootdir /Library/Java/JavaVirtualMachine/1.6.0.jdk
+    } elseif {${configure.build_arch} eq "ppc" || ${configure.build_arch} eq "ppc64"} {
+        depends_build-append       port:openjdk7-ppc
+        depends_lib-append         port:libffi
+        set bootdir /Library/Java/JavaVirtualMachine/openjdk7-ppc
+    }
     use_configure       no
     configure.compiler  gcc
     build.type          gnu
@@ -99,31 +107,22 @@ subport openjdk7-bootstrap {
                         ANT_HOME=${prefix}/share/java/apache-ant \
                         NO_DOCS=true
     if {${configure.build_arch} eq "i386"} {
-        depends_build-append       port:openjdk6-apple
         use_parallel_build  no
-        set bootdir /Library/Java/JavaVirtualMachine/1.6.0.jdk
         set jdk_bundle_dir build/bsd-i586/j2sdk-image
     } elseif {${configure.build_arch} eq "x86_64"} {
         depends_build-append       port:openjdk6-apple
-        build.type          gnu
         build.args-append          ARCH_DATA_MODEL=64
         use_parallel_build  no
-        set bootdir /Library/Java/JavaVirtualMachine/1.6.0.jdk
         set jdk_bundle_dir build/bsd-amd64/j2sdk-image
     } elseif {${configure.build_arch} eq "ppc" || ${configure.build_arch} eq "ppc64"} {
-        depends_build-append       port:openjdk7-ppc
-        depends_lib-append         port:libffi
         build.args-append          ALT_CACERTS_FILE=/System/Library/Frameworks/JavaVM.framework/Home/lib/security/cacerts \
                                    LIBFFI_CFLAGS="-I${prefix}/include" \
-                                   DEFAULT_LIBPATH="${prefix}/lib" \
-                                   NO_DOCS=true \
                                    ZERO_BUILD=true \
                                    ZERO_ENDIANNESS=big \
                                    ZERO_LIBARCH=ppc \
                                    ZERO_ARCHDEF=PPC \
                                    ZERO_ARCHFLAG="-arch ppc"
         use_parallel_build  no
-        set bootdir /Library/Java/JavaVirtualMachine/openjdk7-ppc
         set jdk_bundle_dir build/bsd-ppc/j2sdk-image
     }
     set path ${prefix}/Library/Java/JavaVirtualMachines
