@@ -113,7 +113,7 @@ subport openjdk7-bootstrap {
     build.args          ALLOW_DOWNLOADS=true \
                         ALT_BOOTDIR=${bootdir} \
                         ALT_JDK_IMPORT_PATH=${bootdir} \
-                        ALT_FREETYPE_HEADERS_PATH=${prefix}/include \
+                        ALT_FREETYPE_HEADERS_PATH=${prefix}/include/freetype2 \
                         ALT_FREETYPE_LIB_PATH=${prefix}/lib \
                         ANT_HOME=${prefix}/share/java/apache-ant \
                         NO_DOCS=true \
