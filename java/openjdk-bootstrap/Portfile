@@ -111,12 +111,13 @@ subport openjdk7-bootstrap {
     configure.compiler  gcc
     build.type          gnu
     build.args          ALLOW_DOWNLOADS=true \
-                        ALT_BOOTDIR=${prefix}/${bootdir} \
-                        ALT_JDK_IMPORT_PATH=${prefix}/${bootdir} \
+                        ALT_BOOTDIR=${bootdir} \
+                        ALT_JDK_IMPORT_PATH=${bootdir} \
                         ALT_FREETYPE_HEADERS_PATH=${prefix}/include/freetype2 \
                         ALT_FREETYPE_LIB_PATH=${prefix}/lib \
                         ANT_HOME=${prefix}/share/java/apache-ant \
-                        NO_DOCS=true
+                        NO_DOCS=true \
+                        ALT_CUPS_HEADERS_PATH=/usr/include/cups
     if {${configure.build_arch} eq "i386"} {
         use_parallel_build  no
         set jdk_bundle_dir build/bsd-i586/j2sdk-image
