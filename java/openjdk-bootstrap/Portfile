@@ -97,7 +97,7 @@ subport openjdk7-bootstrap {
         reinplace "s|11.2|9.0|g" ${worksrcpath}/jdk/make/common/shared/Defs-versions.gmk
         reinplace "s|10.7.2|10.5.0|g" ${worksrcpath}/jdk/make/common/shared/Defs-versions.gmk
         reinplace "s|1.7.1|1.6.0|g" ${worksrcpath}/jdk/make/common/shared/Defs-versions.gmk
-        reinplace "s|2.3.0|2.0.0|g" ${worksrcpath}/jdk/make/common/shared/Defs-versions.gmk
+        reinplace "s|2.3.0|2.12.1|g" ${worksrcpath}/jdk/make/common/shared/Defs-versions.gmk
     }
     if {${configure.build_arch} eq "i386" || ${configure.build_arch} eq "x86_64"} {
         depends_build-append       port:openjdk6-apple
