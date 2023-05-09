@@ -108,7 +108,7 @@ subport openjdk7-bootstrap {
         set bootdir ${prefix}/Library/Java/JavaVirtualMachine/openjdk7-ppc
     }
     use_configure       no
-    configure.compiler  gcc
+    compiler.fallback   gcc-4.2 llvm-gcc-4.2 macports-gcc gcc
     build.type          gnu
     build.args          ALLOW_DOWNLOADS=true \
                         ALT_BOOTDIR=${bootdir} \
