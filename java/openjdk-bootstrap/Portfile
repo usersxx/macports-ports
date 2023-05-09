@@ -84,7 +84,8 @@ subport openjdk7-bootstrap {
     checksums           rmd160  05869c70ab85be57bca111cb8205e985d8f0c171 \
                         sha256  bc203dc977b102316fa32224cd98d8285cc45185e8c07c283bfb891d3293a791 \
                         size    69581503
-    depends_lib         port:freetype
+    depends_lib         port:freetype \
+                        port:cups-header
     depends_build       port:gmake \
                         port:pkgconfig \
                         port:apache-ant \
@@ -119,7 +120,7 @@ subport openjdk7-bootstrap {
                         ALT_FREETYPE_LIB_PATH=${prefix}/lib \
                         ANT_HOME=${prefix}/share/java/apache-ant \
                         NO_DOCS=true \
-                        ALT_CUPS_HEADERS_PATH=/usr/include
+                        ALT_CUPS_HEADERS_PATH=${prefix}/include
     if {${configure.build_arch} eq "i386"} {
         use_parallel_build  no
         set jdk_bundle_dir build/bsd-i586/j2sdk-image
