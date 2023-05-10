@@ -102,6 +102,7 @@ subport openjdk7-bootstrap {
         reinplace "s|.6| |g" ${worksrcpath}/jdk/make/common/shared/Defs-versions.gmk
         reinplace "s|freetype.|freetype.6.|g" ${worksrcpath}/jdk/make/common/shared/Defs-versions.gmk
         reinplace "s|USING_SYSTEM_FT_LIB=true|USING_SYSTEM_FT_LIB=false|g" ${worksrcpath}/jdk/make/common/Defs.gmk
+        reinplace "s|llvm-gcc|gcc|g" ${worksrcpath}/jdk/make/common/shared/Compiler-llvm.gmk
     }
     if {${configure.build_arch} eq "i386" || ${configure.build_arch} eq "x86_64"} {
         depends_build-append       port:openjdk6-apple
@@ -112,7 +113,7 @@ subport openjdk7-bootstrap {
         set bootdir ${prefix}/Library/Java/JavaVirtualMachine/openjdk7-ppc
     }
     use_configure       no
-    compiler.fallback   gcc-4.2 llvm-gcc-4.2 macports-gcc gcc
+    compiler.fallback   gcc
     build.type          gnu
     build.args          ALLOW_DOWNLOADS=true \
                         ALT_BOOTDIR=${bootdir} \
@@ -121,7 +122,8 @@ subport openjdk7-bootstrap {
                         ALT_FREETYPE_LIB_PATH=${prefix}/lib \
                         ANT_HOME=${prefix}/share/java/apache-ant \
                         NO_DOCS=true \
-                        ALT_CUPS_HEADERS_PATH=${prefix}/include
+                        ALT_CUPS_HEADERS_PATH=${prefix}/include \
+                        ALT_COMPILER_PATH = /usr/include
     if {${configure.build_arch} eq "i386"} {
         use_parallel_build  no
         set jdk_bundle_dir build/bsd-i586/j2sdk-image
