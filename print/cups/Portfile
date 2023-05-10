@@ -33,7 +33,7 @@ depends_build       port:gmake \
 depends_lib         port:zlib
 
 pre-patch {
-    reinplace "s|/System/Library/LaunchDaemons||g" configure
+    reinplace "s|/System/Library/LaunchDaemons||g" ${worksrcpath}/configure
 }
 
 patchfiles          patch-static-targets.diff \
