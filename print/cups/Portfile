@@ -32,8 +32,15 @@ depends_build       port:gmake \
                     port:pkgconfig
 depends_lib         port:zlib
 
-patch {
+pre-patch {
     reinplace "s|/System/Library/LaunchDaemons||g" configure
+}
+
+patchfiles          patch-static-targets.diff \
+                    patch-cups-getifaddrs.diff
+
+platform darwin 8 {
+patchfiles-append          patch-cups-transcode-iconv.diff
 }
 
 configure.cflags-append     -I${prefix}/include
