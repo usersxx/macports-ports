@@ -85,7 +85,7 @@ subport openjdk7-bootstrap {
                         sha256  bc203dc977b102316fa32224cd98d8285cc45185e8c07c283bfb891d3293a791 \
                         size    69581503
     depends_lib         port:freetype \
-                        port:cups-header
+                        port:cups
     depends_build       port:gmake \
                         port:pkgconfig \
                         port:apache-ant \
