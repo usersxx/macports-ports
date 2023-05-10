@@ -32,6 +32,8 @@ depends_build       port:gmake \
                     port:pkgconfig
 depends_lib         port:zlib
 
+worksrcdir          ${name}-${version}
+
 pre-patch {
     reinplace "s|/System/Library/LaunchDaemons||g" ${worksrcpath}/configure
 }
