@@ -112,6 +112,8 @@ subport openjdk7-bootstrap {
     use_configure       no
     configure.compiler  gcc
     compiler.blacklist-append  macports-clang*
+    build.env-append           LANG=C
+    build.pre_args      LANG=C
     build.type          gnu
     build.args          ALLOW_DOWNLOADS=true \
                         ALT_BOOTDIR=${bootdir} \
