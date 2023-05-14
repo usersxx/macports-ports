@@ -98,10 +98,12 @@ subport openjdk7-bootstrap {
         reinplace "s|2.3.0|2.0.0|g" ${worksrcpath}/jdk/make/common/shared/Defs-versions.gmk
         reinplace "s|1.7.1|1.6.0|g" ${worksrcpath}/jdk/make/common/shared/Defs-versions.gmk
         reinplace "s|.6| |g" ${worksrcpath}/jdk/make/common/shared/Defs-versions.gmk
-        reinplace "s|freetype.|freetype.6.|g" ${worksrcpath}/jdk/make/common/shared/Defs-versions.gmk
+        reinplace "s|freetype.|freetype.6.|g" ${worksrcpath}/jdk/make/sun/font/Makefile
         reinplace "s|USING_SYSTEM_FT_LIB=true|USING_SYSTEM_FT_LIB=false|g" ${worksrcpath}/jdk/make/common/Defs.gmk
         reinplace "s|llvm-gcc|gcc|g" ${worksrcpath}/jdk/make/common/shared/Compiler-llvm.gmk
         reinplace "s|getAntVersion|getAntVersion()|g" ${worksrcpath}/jaxp/src/com/sun/org/apache/xalan/internal/xslt/EnvironmentCheck.java
+        reinplace "s|/X11R6/|/|g" ${worksrcpath}/jdk/make/sun/xawt/Makefile
+        reinplace "s|/X11R6/|/|g" ${worksrcpath}/jdk/make/common/Defs.gmk
     }
     if {${configure.build_arch} eq "i386" || ${configure.build_arch} eq "x86_64"} {
         depends_build-append       port:openjdk6-apple
