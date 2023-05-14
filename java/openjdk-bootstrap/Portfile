@@ -77,6 +77,7 @@ subport openjdk7-bootstrap {
     supported_archs     ppc ppc64 i386 x86_64
     description         OpenJDK 7 bootstrap
     long_description    {*}${description}
+    platforms           {darwin <= 17}
     homepage            https://openjdk.java.net/
     master_sites        https://git.openjdk.org/jdk7u/archive/refs/tags
     distname            jdk${version}-ga
