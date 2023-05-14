@@ -24,7 +24,7 @@ if {${subport} eq ${name}} {
 }
 
 subport openjdk7-ppc {
-    version             7u241
+    version             7u2
     revision            0
     supported_archs     ppc ppc64
     homepage            
@@ -38,7 +38,7 @@ subport openjdk7-ppc {
     checksums           rmd160  872bea18c8c153d0509d2d18ebe6da6a71161e3f \
                         sha256  0d3ffaa7c5a2873ec26fc97ce1f592bafa18e3ae52605f0a2ba039a75d4860a8 \
                         size    54392585
-    distname            openjdk7u2-macppc-fcs-${build}
+    distname            openjdk${version}-macppc-fcs-${build}
     distfiles           ${distname}.tar_.bz2
     use_bzip2           yes
     worksrcdir          ${distname}
