@@ -72,39 +72,39 @@ subport openjdk7-ppc {
 }
 
 subport openjdk7-bootstrap {
+    set uver 241
+    set build 01
     version             7u241
     revision            0
     supported_archs     ppc ppc64 i386 x86_64
     description         OpenJDK 7 bootstrap
     long_description    {*}${description}
-    platforms           {darwin <= 17}
+    platforms           darwin
     homepage            https://openjdk.java.net/
-    master_sites        https://git.openjdk.org/jdk7u/archive/refs/tags
+    master_sites        https://git.openjdk.org/jdk7u/archive/refs/tags \
+                        https://archive.apache.org/dist/ant/binaries/:ant
     distname            jdk${version}-ga
     worksrcdir          jdk7u-${distname}
-    checksums           rmd160  05869c70ab85be57bca111cb8205e985d8f0c171 \
-                        sha256  bc203dc977b102316fa32224cd98d8285cc45185e8c07c283bfb891d3293a791 \
-                        size    69581503
+    set ant_distname apache-ant-1.8.4-bin
+    checksums           ${distname}${extract.suffix} \
+                            rmd160  05869c70ab85be57bca111cb8205e985d8f0c171 \
+                            sha256  bc203dc977b102316fa32224cd98d8285cc45185e8c07c283bfb891d3293a791 \
+                            size    69581503
+                        ${ant_distname}${extract.suffix} \
+                            rmd160  a2aedf433d12c222e348d1e144539a13a6b3ed96 \
+                            sha256  562f2212ea08de4f3f46f25e5452aebaaba8e9132f5decd5021da4e073945155 \
+                            size    5425171
+                        
     depends_lib         port:freetype \
-                        port:cups
+                        port:cups \
+                        port:xorg-libX11 \
+                        port:xorg-libXtst \
+                        port:libiconv
     depends_build       port:gmake \
                         port:pkgconfig \
-                        port:apache-ant \
-                        port:unzip \
-                        port:zip
-    pre-patch {
-        reinplace "s|11.2|9.0|g" ${worksrcpath}/jdk/make/common/shared/Defs-versions.gmk
-        reinplace "s|10.7.2|10.5.0|g" ${worksrcpath}/jdk/make/common/shared/Defs-versions.gmk
-        reinplace "s|2.3.0|2.0.0|g" ${worksrcpath}/jdk/make/common/shared/Defs-versions.gmk
-        reinplace "s|1.7.1|1.6.0|g" ${worksrcpath}/jdk/make/common/shared/Defs-versions.gmk
-        reinplace "s|.6| |g" ${worksrcpath}/jdk/make/common/shared/Defs-versions.gmk
-        reinplace "s|freetype.|freetype.6.|g" ${worksrcpath}/jdk/make/sun/font/Makefile
-        reinplace "s|USING_SYSTEM_FT_LIB=true|USING_SYSTEM_FT_LIB=false|g" ${worksrcpath}/jdk/make/common/Defs.gmk
-        reinplace "s|llvm-gcc|gcc|g" ${worksrcpath}/jdk/make/common/shared/Compiler-llvm.gmk
-        reinplace "s|getAntVersion|getAntVersion()|g" ${worksrcpath}/jaxp/src/com/sun/org/apache/xalan/internal/xslt/EnvironmentCheck.java
-        reinplace "s|/X11R6/|/|g" ${worksrcpath}/jdk/make/sun/xawt/Makefile
-        reinplace "s|/X11R6/|/|g" ${worksrcpath}/jdk/make/common/Defs.gmk
-    }
+                        port:ghc \
+                        port:ruby
+
     if {${configure.build_arch} eq "i386" || ${configure.build_arch} eq "x86_64"} {
         depends_build-append       port:openjdk6-apple
         set bootdir ${prefix}/Library/Java/JavaVirtualMachine/1.6.0.jdk/Contents/Home
@@ -113,13 +113,27 @@ subport openjdk7-bootstrap {
         depends_lib-append         port:libffi
         set bootdir ${prefix}/Library/Java/JavaVirtualMachine/openjdk7-ppc
     }
+    if {${build_arch} == "i386"} {
+        set openjdk_build_arch "i586"
+    } elseif {${build_arch} == "ppc64"}
+        set openjdk_build_arch "ppc"
+    } else {
+        set openjdk_build_arch "${build_arch}"
+    }
+    pre-patch {
+        reinplace "s|/usr/bin/ant|${workpath}/apache-ant-${ant_version}/bin/ant|g" \
+            "${worksrcpath}/jdk/make/java/jobjc/Makefile" \
+            "${worksrcpath}/jdk/src/macosx/native/jobjc/JObjC.xcodeproj/project.pbxproj"
+    }
     use_configure       no
     configure.compiler  gcc
     compiler.blacklist-append  macports-clang*
-    build.env-append           LANG=C
-    build.pre_args      LANG=C
     build.type          gnu
-    build.args          ALLOW_DOWNLOADS=true \
+    build.args          LANG=C \
+                        CC="${configure.cc}" \
+                        CXX="${configure.cxx}" \
+                        EXTRA_CFLAGS="-Wno-deprecated-declarations -I\"${filespath}/clang-compat-headers\"" \
+                        ALLOW_DOWNLOADS=true \
                         ALT_BOOTDIR=${bootdir} \
                         ALT_JDK_IMPORT_PATH=${bootdir} \
                         ALT_FREETYPE_HEADERS_PATH=${prefix}/include/freetype2 \
@@ -127,14 +141,30 @@ subport openjdk7-bootstrap {
                         ANT_HOME=${prefix}/share/java/apache-ant \
                         NO_DOCS=true \
                         ALT_CUPS_HEADERS_PATH=${prefix}/include \
-                        ALT_COMPILER_PATH=${developer_dir}/usr/bin/
+                        ALT_COMPILER_PATH=${developer_dir}/usr/bin/ \
+                        ALWAYS_PASS_TEST_GAMMA=true \
+                        ANT_HOME="${workpath}/apache-ant-${ant_version}" \
+                        ALT_X11_PATH="${prefix}" \
+                        ALT_DEVTOOLS_PATH=/usr \
+                        SKIP_COMPARE_IMAGES="true" \
+                        SKIP_FASTDEBUG_BUILD="true" \
+                        SKIP_DEBUG_BUILD="true" \
+                        ZIP_DEBUGINFO_FILES=0 \
+                        ENABLE_FULL_DEBUG_SYMBOLS=0 \
+                        MILESTONE="fcs" \
+                        BUNDLE_NAME="OpenJDK ${jdk_major_version} (MacPorts)" \
+                        BUNDLE_INFO="OpenJDK MacPorts ${name}-${version}" \
+                        BUNDLE_ID="org.macports.openjdk" \
+                        BUNDLE_VENDOR="MacPorts" \
+                        JDK_MICRO_VERSION="0_${uver}" \
+                        BUILD_NUMBER="b${build}" \
+
     if {${configure.build_arch} eq "i386"} {
         use_parallel_build  no
-        set jdk_bundle_dir build/bsd-i586/j2sdk-image
     } elseif {${configure.build_arch} eq "x86_64"} {
-        build.args-append          ARCH_DATA_MODEL=64
+        build.args-append          ARCH_DATA_MODEL=64 \
+                                   SA_APPLE_BOOT_JAVA=true
         use_parallel_build  no
-        set jdk_bundle_dir build/bsd-amd64/j2sdk-image
     } elseif {${configure.build_arch} eq "ppc" || ${configure.build_arch} eq "ppc64"} {
         build.args-append          ALT_CACERTS_FILE=/System/Library/Frameworks/JavaVM.framework/Home/lib/security/cacerts \
                                    LIBFFI_CFLAGS="-I${prefix}/include" \
@@ -144,8 +174,8 @@ subport openjdk7-bootstrap {
                                    ZERO_ARCHDEF=PPC \
                                    ZERO_ARCHFLAG="-arch ppc"
         use_parallel_build  no
-        set jdk_bundle_dir build/bsd-ppc/j2sdk-image
     }
+    set jdk_bundle_dir build/bsd-${openjdk-build-arch}/j2sdk-image
     set path ${prefix}/Library/Java/JavaVirtualMachines
     destroot {
         xinstall -m 755 -d ${destroot}${path}
