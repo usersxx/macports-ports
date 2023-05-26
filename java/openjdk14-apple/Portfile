@@ -33,6 +33,11 @@ pre-patch {
     reinplace "s|assert|vmassert|g" ${worksrcpath}/src/hotspot/share/jfr/periodic/jfrNetworkUtilization.cpp
 }
 
+pre-build {
+    system -W ${worksrcpath} "mkdir -p ${worksrcpath}/build/Frameworks"
+    system -W ${worksrcpath} "xcodebuild install -project ${worksrcpath}/apple/JavaNativeFoundation/JavaNativeFoundation.xcodeproj -target JavaNativeFoundation -configuration Release DSTROOT=\"${worksrcpath}/build/Frameworks\" "
+}
+
 set tpath /Library/Java
 use_configure    yes
 configure.cmd       ${prefix}/bin/bash configure
@@ -44,9 +49,9 @@ configure.args      --with-debug-level=release \
                     --with-version-string=${version} \
                     --with-target-bits=64 \
                     --with-sysroot=`xcrun --sdk macosx --show-sdk-path` \
-                    --with-extra-cflags="${configure.cflags}" \
-                    --with-extra-cxxflags="${configure.cxxflags}" \
-                    --with-extra-ldflags="${configure.ldflags}" \
+                    --with-extra-cflags="${configure.cflags} -F$(pwd)/build/Frameworks" \
+                    --with-extra-cxxflags="${configure.cxxflags} -F$(pwd)/build/Frameworks" \
+                    --with-extra-ldflags="${configure.ldflags} -F$(pwd)/build/Frameworks" \
                     --with-boot-jdk=/Library/Java/JavaVirtualMachines/openjdk13-bootstrap/Contents/Home \
                     --with-freetype=system \
                     --with-freetype-include=${prefix}/include/freetype2 \
@@ -57,10 +62,16 @@ configure.args      --with-debug-level=release \
                     --with-vendor-url="${homepage}" \
                     --with-vendor-bug-url="${bug_url}" \
                     --with-vendor-vm-bug-url="${bug_url}" \
-                    --with-conf-name=openjdk14
+                    --with-conf-name=openjdk14 \
+                    --disable-hotspot-gtest \
+                    --disable-javac-server \
+                    --disable-full-docs \
+                    --disable-manpages \
+                    --with-toolchain-type=clang \
+                    BUILD_CC=/usr/bin/clang \
+                    BUILD_CXX=/usr/bin/clang++
 
 if {${configure.build_arch} eq "arm64"} {
-    description {JVM with C++ based interpreter only, no compiler} {
     configure.args-append      --with-jvm-variants=zero \
                                --with-libffi=${prefix} \
                                --enable-libffi-bundling
