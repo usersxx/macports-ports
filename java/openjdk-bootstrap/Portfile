@@ -106,6 +106,8 @@ subport openjdk7-bootstrap {
                         port:ghc \
                         port:ruby
 
+    patchfiles          patch-extension-directories.diff
+
     if {${configure.build_arch} eq "i386" || ${configure.build_arch} eq "x86_64"} {
         depends_build-append       port:openjdk6-apple
         set bootdir ${prefix}/Library/Java/JavaVirtualMachine/1.6.0.jdk/Contents/Home
@@ -128,7 +130,8 @@ subport openjdk7-bootstrap {
     }
     use_configure       no
     configure.compiler  gcc
-    compiler.blacklist-append  *clang*
+    compiler.blacklist  *clang*
+    compiler.whitelist  llvm-gcc-4.2
     build.type          gnu
     build.args          LANG=C \
                         CC="${configure.cc}" \
@@ -137,7 +140,7 @@ subport openjdk7-bootstrap {
                         ALLOW_DOWNLOADS=true \
                         ALT_BOOTDIR=${bootdir} \
                         ALT_JDK_IMPORT_PATH=${bootdir} \
-                        ALT_FREETYPE_HEADERS_PATH=${prefix}/include/freetype2 \
+                        ALT_FREETYPE_HEADERS_PATH=${workpath}/apache-ant-1.8.4 \
                         ALT_FREETYPE_LIB_PATH=${prefix}/lib \
                         ANT_HOME=${prefix}/share/java/apache-ant \
                         NO_DOCS=true \
