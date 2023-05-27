@@ -185,7 +185,7 @@ subport openjdk7-bootstrap {
         set src_bundle_name "jdk1.${jdk_major_version}.0_${update}.jdk"
         set bundle_path "${prefix}/Library/Java/JavaVirtualMachines/${name}"
         set destroot_bundle_path "${destroot}${bundle_path}/"
-        xinstall -m 755 -d ${destroot_bundle_path}
+        xinstall -m 755 -d ${destroot}${prefix}
         system -W ${worksrcpath} "mv ${worksrcpath}/build/macosx-${openjdk_build_arch}/j2sdk-bundle/${src_bundle_name} ${bundle_path}"
     }
 }
