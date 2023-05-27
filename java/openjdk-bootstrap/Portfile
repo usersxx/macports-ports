@@ -100,6 +100,7 @@ subport openjdk7-bootstrap {
                         port:xorg-libX11 \
                         port:xorg-libXtst \
                         port:libiconv
+
     depends_build       port:gmake \
                         port:pkgconfig \
                         port:ghc \
@@ -115,7 +116,7 @@ subport openjdk7-bootstrap {
     }
     if {${build_arch} == "i386"} {
         set openjdk_build_arch "i586"
-    } elseif {${build_arch} == "ppc64"}
+    } elseif {${build_arch} == "ppc64"} {
         set openjdk_build_arch "ppc"
     } else {
         set openjdk_build_arch "${build_arch}"
@@ -127,7 +128,7 @@ subport openjdk7-bootstrap {
     }
     use_configure       no
     configure.compiler  gcc
-    compiler.blacklist-append  macports-clang*
+    compiler.blacklist-append  *clang*
     build.type          gnu
     build.args          LANG=C \
                         CC="${configure.cc}" \
