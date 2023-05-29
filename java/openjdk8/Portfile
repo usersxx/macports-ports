@@ -12,7 +12,7 @@ set update 372
 # Set to the build of the 'jdk8u${update}-b${build}' tag that corresponds to the latest tag with '-ga'
 set build 07
 version             ${major}u${update}
-revision            0
+revision            1
 categories          java devel
 supported_archs     ppc x86_64 arm64
 license             GPL-2+
