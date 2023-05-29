@@ -4,21 +4,21 @@ PortSystem          1.0
 PortGroup           stub 1.0
 PortGroup           select 1.0
 
-name			    java_select
-version			    0.1
+name                java_select
+version             0.1
 revision            0
-categories		    sysutils
-platforms		    darwin
-license		        permissive
-maintainers		    nomaintainer
-supported_archs		noarch
-description		    common files for selecting default Java version
-long_description	java_select installs files that allow 'port select' to \
-			        switch the default version of Java. \
-			        It symlinks the standard Java executables \
-			        in the MacPorts prefix to the selected version.
+categories          sysutils
+platforms           darwin
+license             permissive
+maintainers         nomaintainer
+supported_archs     noarch
+description         common files for selecting default Java version
+long_description    java_select installs files that allow 'port select' to \
+                    switch the default version of Java. \
+                    It symlinks the standard Java executables \
+                    in the MacPorts prefix to the selected version.
 
-homepage		    https://www.macports.org/
+homepage            https://www.macports.org/
 distfiles
 
 use_configure no
