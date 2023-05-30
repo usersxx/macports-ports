@@ -14,6 +14,8 @@ set update 372
 set build 07
 version             ${major}u${update}
 set ws_ver 1.8.8
+set tagsoup_ver 1.2.1
+set rhino_ver 6R7
 revision            0
 categories          java devel
 supported_archs     ppc x86_64 arm64
@@ -23,14 +25,39 @@ description         OpenJDK 8
 long_description    JDK 8 and JRE 8 builds of OpenJDK, the Open-Source implementation \
                     of the Java Platform, Standard Edition, and related projects.
 homepage            https://openjdk.org/
-master_sites        https://git.openjdk.org/jdk8u/archive/refs/tags/
+master_sites        https://git.openjdk.org/jdk8u/archive/refs/tags/ \
+                    https://github.com/AdoptOpenJDK/IcedTea-Web/archive/refs/tags/:ws \
+                    https://repo1.maven.org/maven2/org/ccil/cowan/tagsoup/tagsoup/${tagsoup_ver}/:tagsoup \
+                    https://ftp.mozilla.org/pub/mozilla.org/js/:rhino
 distname            jdk${major}u${update}-ga
 worksrcdir          jdk8u-${distname}
 set ws_distname icedtea-web-${ws_ver}
+set tagsoup_distname tagsoup-${tagsoup_ver}
+set rhino_distname rhino1_${rhino_ver}
+distfiles           ${distname}${extract.suffix} \
+                    ${ws_distname}${extract.suffix}:ws \
+                    ${tagsoup_distname}.jar:tagsoup \
+                    ${rhino_distname}.zip:rhino
+                    
+checksums           ${distname}${extract.suffix} \
+                        rmd160  7ffec6da71e24d2913b717b5f31d6be9c2fa7b7e \
+                        sha256  3235a744b51896beb1e8b738412982ebc06e2affb9d50ae3371203d9a46504da \
+                        size    88002433 \
+                    ${ws_distname}${extract.suffix} \
+                        rmd160  9da7315b50253d96d441493934166cd5844d1294 \
+                        sha256  f4203a605a3c9c50acdcc6eef4a366b9fdd36d95edcd76bcbfede01107cb5fe6 \
+                        size    2365638 \
+                    ${tagsoup_distname}.jar \
+                        rmd160  7e1472b4a9f448b29d1d417e84270b3b85bb205e \
+                        sha256  ac97f7b4b1d8e9337edfa0e34044f8d0efe7223f6ad8f3a85d54cc1018ea2e04 \
+                        size    90722 \
+                    ${rhino_distname}.zip \
+                        rmd160  fc83068e8293bad7a8d38250d66f67f98e132451 \
+                        sha256  c94c6de3a29b3acbc4eee732e688f75a5d94bd02c9878be4ceb4d3cd220f3866 \
+                        size    1753170
 
-checksums           rmd160  7ffec6da71e24d2913b717b5f31d6be9c2fa7b7e \
-                    sha256  3235a744b51896beb1e8b738412982ebc06e2affb9d50ae3371203d9a46504da \
-                    size    88002433
+extract.only-delete        ${tagsoup_distname}.jar
+extract.only-delete        ${rhino_distname}.zip
 
 patchfiles          0001-8181503-Can-t-compile-hotspot-with-c-11.patch \
                     0002-Support-XCode-3-14.patch \
@@ -41,18 +68,25 @@ patchfiles          0001-8181503-Can-t-compile-hotspot-with-c-11.patch \
                     0007-Added-macosx-bin-zero-jvm.cfg.patch \
                     0008-ExtendedOptionsImpl.c-define-TCP_KEEPINTVL-and-TCP_K.patch \
                     Support-arm64-and-fix-zero-assembler.diff
-
 # NSFullSizeContentViewWindowMask is available since 10.10
 if {${os.platform} eq "darwin" && ${os.major} < 14} {
     patchfiles-append \
                     0009-Revert-8211301-macos-support-full-window-content-opt.patch
 }
+set ws_src IcedTea-Web-${ws_distname}
+set tagsoup_bin ${rhino_distname}
+set rhino_jar ${tagsoup_distname}.jar
 
 depends_lib         port:freetype
 depends_build       port:autoconf \
                     port:gmake \
                     port:pkgconfig \
-                    port:bash
+                    port:bash \
+                    port:autoconf \
+                    port:automake \
+                    port:coreutils \
+                    port:gsed \
+                    port:rust
 
 select.group        java
 select.file         ${filespath}/${name}
@@ -63,7 +97,6 @@ use_configure    yes
 
 if {${configure.build_arch} eq "ppc"} {
     set datamodel 32
-    set boot_jdk 
 } elseif {${configure.build_arch} eq "x86_64"} {
     set datamodel 64
 } elseif {${configure.build_arch} eq "arm64"} {
@@ -73,6 +106,10 @@ if {${configure.build_arch} eq "ppc"} {
 pre-patch {
     reinplace "s|net.java.openjdk|org.macports.openjdk|g" ${worksrcpath}/common/autoconf/version-numbers
     reinplace "s|MACOSX_BUNDLE_NAME_BASE=\"OpenJDK\"|MACOSX_BUNDLE_NAME_BASE=\"OpenJDK${major} (MacPorts)\"|g" ${worksrcpath}/common/autoconf/version-numbers
+}
+
+pre-configure {
+    system -W ${worksrcpath} "sh ./autogen.sh"
 }
 
 configure.cmd       ${prefix}/bin/bash ./configure
