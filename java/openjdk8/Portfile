@@ -1,7 +1,6 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
-PortGroup           java 1.0
 PortGroup           select 1.0
 
 name                openjdk8
@@ -62,26 +61,23 @@ use_configure    yes
 
 if {${configure.build_arch} eq "ppc"} {
     set datamodel 32
-    java.version    1.7+
-    java.fallback   openjdk7-bootstrap
-    set boot_ver 
+    set boot_jdk 
 } elseif {${configure.build_arch} eq "x86_64"} {
     set datamodel 64
-    java.version    1.8
-    java.fallback   openjdk8-bootstrap
-    set boot_ver 1.8
 } elseif {${configure.build_arch} eq "arm64"} {
     set datamodel 64
-    java.version    1.8
-    java.fallback   openjdk8-bootstrap
-    set boot_ver 1.8
+}
+
+pre-patch {
+    reinplace "s|net.java.openjdk|org.macports.openjdk|g" ${worksrcpath}/common/autoconf/version-numbers
+    reinplace "s|MACOSX_BUNDLE_NAME_BASE="OpenJDK"|MACOSX_BUNDLE_NAME_BASE="OpenJDK${major} (MacPorts)"|g" ${worksrcpath}/common/autoconf/version-numbers
 }
 
 configure.cmd       ${prefix}/bin/bash ./configure
 configure.pre_args  --prefix=${tpath}
 set bug_url "https://trac.macports.org/newticket?port=${name}"
 # default configure args
-configure.args      --with-boot-jdk=`/usr/libexec/java_home -v${boot_ver}` \
+configure.args      --with-boot-jdk \
                     --with-debug-level=release \
                     --with-freetype-include=${prefix}/include/freetype2 \
                     --with-freetype-lib=${prefix}/lib \
@@ -124,12 +120,12 @@ if {${configure.build_arch} eq "ppc"} {
     configure.args-replace      --with-boot-jdk --with-boot-jdk=/Library/Java/JavaVirtualMachines/openjdk7-bootstrap
     configure.post_args --disable-headful
     post-patch {
-        reinplace "s|WARNINGS_ARE_ERRORS = -Werror|WARNING_FLAGS =|g" hotspot/make/bsd/makefiles/gcc.make
-        reinplace "s|WARNING_FLAGS = -Wpointer-arith -Wsign-compare -Wundef -Wunused-function -Wformat=2|WARNING_FLAGS = |g" hotspot/make/bsd/makefiles/gcc.make
-        reinplace "s|@ZERO_ARCHDEF@|PPC|g" hotspot/make/bsd/platform_zero.in
-        reinplace "s|@ZERO_LIBARCH@|ppc|g" hotspot/make/bsd/platform_zero.in
-        reinplace "s|dtraceCheck| |g" hotspot/make/bsd/makefiles/vm.make
-        reinplace "s|LP64=1|LP64=0|g" hotspot/make/bsd/Makefile
+        reinplace "s|WARNINGS_ARE_ERRORS = -Werror|WARNING_FLAGS =|g" ${worksrcpath}/hotspot/make/bsd/makefiles/gcc.make
+        reinplace "s|WARNING_FLAGS = -Wpointer-arith -Wsign-compare -Wundef -Wunused-function -Wformat=2|WARNING_FLAGS = |g" ${worksrcpath}/hotspot/make/bsd/makefiles/gcc.make
+        reinplace "s|@ZERO_ARCHDEF@|PPC|g" ${worksrcpath}/hotspot/make/bsd/platform_zero.in
+        reinplace "s|@ZERO_LIBARCH@|ppc|g" ${worksrcpath}/hotspot/make/bsd/platform_zero.in
+        reinplace "s|dtraceCheck| |g" ${worksrcpath}/hotspot/make/bsd/makefiles/vm.make
+        reinplace "s|LP64=1|LP64=0|g" ${worksrcpath}/hotspot/make/bsd/Makefile
     }
 } elseif {${configure.build_arch} eq "x86_64" } {
     if {${os.platform} eq "darwin" && ${os.major} < 11} {
@@ -146,6 +142,9 @@ if {${configure.build_arch} eq "ppc"} {
         }
     }
 
+    depends_build-append       port:openjdk8-bootstrap
+    configure.args-replace      --with-boot-jdk --with-boot-jdk=/Library/Java/JavaVirtualMachines/openjdk8-bootstrap/Contents/Home
+} else {
     depends_build-append       port:openjdk8-bootstrap
     configure.args-replace      --with-boot-jdk --with-boot-jdk=/Library/Java/JavaVirtualMachines/openjdk8-bootstrap/Contents/Home
 }
@@ -238,12 +237,11 @@ destroot {
     xinstall -m 755 -d ${destroot}${jre_path}
     copy ${worksrcpath}/${jdk_bundle_dir} ${destroot}${jdk_path}
     copy ${worksrcpath}/${jre_bundle_dir} ${destroot}${jre_path}
-    ln ../Library/Java/JavaVirtualMachines/${name}/Contents/Home/ ${destroot}${prefix}/share/java/${name}
 }
 destroot.violate_mtree      yes
 
 post-destroot {
-    delete ${worksrcpath}
+    ln ../Library/Java/JavaVirtualMachines/${name}/Contents/Home/ ${destroot}${prefix}/share/java/${name}
 }
 
 notes "
