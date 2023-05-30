@@ -52,7 +52,6 @@ depends_build       port:autoconf \
                     port:gmake \
                     port:pkgconfig \
                     port:bash
-java.version    1.7+
 
 select.group        java
 select.file         ${filespath}/${name}
@@ -63,20 +62,26 @@ use_configure    yes
 
 if {${configure.build_arch} eq "ppc"} {
     set datamodel 32
+    java.version    1.7+
     java.fallback   openjdk7-bootstrap
+    set boot_ver 
 } elseif {${configure.build_arch} eq "x86_64"} {
     set datamodel 64
+    java.version    1.8
     java.fallback   openjdk8-bootstrap
+    set boot_ver 1.8
 } elseif {${configure.build_arch} eq "arm64"} {
     set datamodel 64
+    java.version    1.8
     java.fallback   openjdk8-bootstrap
+    set boot_ver 1.8
 }
 
 configure.cmd       ${prefix}/bin/bash ./configure
 configure.pre_args  --prefix=${tpath}
 set bug_url "https://trac.macports.org/newticket?port=${name}"
 # default configure args
-configure.args      --with-boot-jdk=`/usr/libexec/java_home` \
+configure.args      --with-boot-jdk=`/usr/libexec/java_home -v${boot_ver}` \
                     --with-debug-level=release \
                     --with-freetype-include=${prefix}/include/freetype2 \
                     --with-freetype-lib=${prefix}/lib \
