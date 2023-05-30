@@ -23,8 +23,7 @@ description         OpenJDK 8
 long_description    JDK 8 and JRE 8 builds of OpenJDK, the Open-Source implementation \
                     of the Java Platform, Standard Edition, and related projects.
 homepage            https://openjdk.org/
-master_sites        https://git.openjdk.org/jdk8u/archive/refs/tags/ \
-                    https://github.com/AdoptOpenJDK/IcedTea-Web/archive/refs/tags/:webstart
+master_sites        https://git.openjdk.org/jdk8u/archive/refs/tags/
 distname            jdk${major}u${update}-ga
 worksrcdir          jdk8u-${distname}
 set ws_distname icedtea-web-${ws_ver}
