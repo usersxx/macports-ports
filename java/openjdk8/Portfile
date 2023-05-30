@@ -70,7 +70,7 @@ if {${configure.build_arch} eq "ppc"} {
 
 pre-patch {
     reinplace "s|net.java.openjdk|org.macports.openjdk|g" ${worksrcpath}/common/autoconf/version-numbers
-    reinplace "s|MACOSX_BUNDLE_NAME_BASE="OpenJDK"|MACOSX_BUNDLE_NAME_BASE="OpenJDK${major} (MacPorts)"|g" ${worksrcpath}/common/autoconf/version-numbers
+    reinplace "s|MACOSX_BUNDLE_NAME_BASE=\"OpenJDK\"|MACOSX_BUNDLE_NAME_BASE=\"OpenJDK${major} (MacPorts)\"|g" ${worksrcpath}/common/autoconf/version-numbers
 }
 
 configure.cmd       ${prefix}/bin/bash ./configure
