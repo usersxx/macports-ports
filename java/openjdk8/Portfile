@@ -16,6 +16,7 @@ version             ${major}u${update}
 set ws_ver 1.8.8
 set tagsoup_ver 1.2.1
 set rhino_ver 6R7
+set ecj_ver 4.6.1
 revision            0
 categories          java devel
 supported_archs     ppc x86_64 arm64
@@ -28,12 +29,14 @@ homepage            https://openjdk.org/
 master_sites        https://git.openjdk.org/jdk8u/archive/refs/tags/ \
                     https://github.com/AdoptOpenJDK/IcedTea-Web/archive/refs/tags/:ws \
                     https://repo1.maven.org/maven2/org/ccil/cowan/tagsoup/tagsoup/${tagsoup_ver}/:tagsoup \
-                    https://ftp.mozilla.org/pub/mozilla.org/js/:rhino
+                    https://ftp.mozilla.org/pub/mozilla.org/js/:rhino \
+                    https://repo1.maven.org/maven2/org/eclipse/jdt/core/compiler/ecj/${ecj_ver}/:ecj
 distname            jdk${major}u${update}-ga
 worksrcdir          jdk8u-${distname}
 set ws_distname icedtea-web-${ws_ver}
 set tagsoup_distname tagsoup-${tagsoup_ver}
 set rhino_distname rhino1_${rhino_ver}
+set ecj_distname ecj-${ecj_ver}
 distfiles           ${distname}${extract.suffix} \
                     ${ws_distname}${extract.suffix}:ws \
                     ${tagsoup_distname}.jar:tagsoup \
@@ -54,11 +57,16 @@ checksums           ${distname}${extract.suffix} \
                     ${rhino_distname}.zip \
                         rmd160  fc83068e8293bad7a8d38250d66f67f98e132451 \
                         sha256  c94c6de3a29b3acbc4eee732e688f75a5d94bd02c9878be4ceb4d3cd220f3866 \
-                        size    1753170
+                        size    1753170 \
+                    ${ecj_distname}.jar \
+                        rmd160  9a85eef1fc1ade5b8bae3845a3c193fa03035deb \
+                        sha256  9cddda75f4a1b4469e73f44e7b61a3e897d0f657df4797f9106ffe88c4eeade0 \
+                        size    2440899
 
 set ws_src IcedTea-Web-${ws_distname}
 set rhino_bin ${rhino_distname}
 set tagsoup_jar ${tagsoup_distname}.jar
+set ecj_jar ${ecj_distname}.jar
 
 depends_lib         port:freetype
 depends_build       port:autoconf \
@@ -72,8 +80,9 @@ depends_build       port:autoconf \
                     port:rust
 depends_extract-append     port:unzip
 
-extract.only-delete        ${tagsoup_distname}.jar
+extract.only-delete        ${tagsoup_jar}
 extract.only-delete        ${rhino_distname}.zip
+extract.only-delete        ${ecj_distname}.jar
 
 post-extract {
     ${prefix}/bin/unzip ${rhino_distname}.zip -d ${workpath}
@@ -142,7 +151,7 @@ configure.args      --with-boot-jdk=${boot_dir} \
                     --with-native-debug-symbols=none
 
 post-configure {
-    system -W ${workpath}/${ws_src} "./configure --prefix=\"${destroot}${prefix}/share/java/${name}\" --with-rhino=\"${workpath}/${rhino_bin}/js.jar\" --with-tagsoup=\"${workpath}/${tagsoup_jar}\" --with-jdk-home=\"${boot_dir}\" --with-jre-home=\"${boot_dir}\" "
+    system -W ${workpath}/${ws_src} "./configure --prefix=${destroot}${prefix}/share/java/${name} --with-rhino=${workpath}/${rhino_bin}/js.jar --with-tagsoup=${workpath}/${tagsoup_jar} --with-jdk-home=${boot_dir} --with-jre-home=${boot_dir} --with-ecj-jar=${workpath}/${ecj_jar} "
 }
 
 if { [string match *clang* ${configure.compiler}] } {
