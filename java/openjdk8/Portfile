@@ -151,7 +151,7 @@ configure.args      --with-boot-jdk=${boot_dir} \
                     --with-native-debug-symbols=none
 
 post-configure {
-    system -W ${workpath}/${ws_src} "./configure --prefix=${destroot}${prefix}/share/java/${name} --with-rhino=${workpath}/${rhino_bin}/js.jar --with-tagsoup=${workpath}/${tagsoup_jar} --with-jdk-home=${boot_dir} --with-jre-home=${boot_dir} --with-ecj-jar=${workpath}/${ecj_jar} "
+    system -W ${workpath}/${ws_src} "./configure --disable-native-plugin --prefix=${destroot}${prefix}/share/java/${name} --with-rhino=${workpath}/${rhino_bin}/js.jar --with-tagsoup=${workpath}/${tagsoup_jar} --with-jdk-home=${boot_dir} --with-jre-home=${boot_dir} --with-ecj-jar=${workpath}/${ecj_jar} "
 }
 
 if { [string match *clang* ${configure.compiler}] } {
