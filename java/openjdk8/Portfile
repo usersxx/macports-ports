@@ -294,7 +294,7 @@ build.target        images
 use_parallel_build  no
 set jdkn jdk1.${major}.0_${update}.jdk
 set jren jre1.${major}.0_${update}.jre
-setcjdk_bundle_dir build/openjdk8/images/j2sdk-bundle/${jdkn}/Contents
+set jdk_bundle_dir build/openjdk8/images/j2sdk-bundle/${jdkn}/Contents
 set jre_bundle_dir build/openjdk8/images/j2re-bundle/${jren}/Contents
 set jdk_path ${tpath}/JavaVirtualMachines/${name}
 set jre_path ${tpath}/JavaVirtualMachines/${name}-jre
