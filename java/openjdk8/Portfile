@@ -16,7 +16,7 @@ version             ${major}u${update}
 set ws_ver 1.8.8
 set tagsoup_ver 1.2.1
 set rhino_ver 6R7
-set ecj_ver 4.6.1
+set hamcrest_ver 1.3
 revision            0
 categories          java devel
 supported_archs     ppc x86_64 arm64
@@ -30,17 +30,18 @@ master_sites        https://git.openjdk.org/jdk8u/archive/refs/tags/ \
                     https://github.com/AdoptOpenJDK/IcedTea-Web/archive/refs/tags/:ws \
                     https://repo1.maven.org/maven2/org/ccil/cowan/tagsoup/tagsoup/${tagsoup_ver}/:tagsoup \
                     https://ftp.mozilla.org/pub/mozilla.org/js/:rhino \
-                    https://repo1.maven.org/maven2/org/eclipse/jdt/core/compiler/ecj/${ecj_ver}/:ecj
+                    https://repo1.maven.org/maven2/org/hamcrest/hamcrest-all/${hamcrest_ver}/:hamcrest
 distname            jdk${major}u${update}-ga
 worksrcdir          jdk8u-${distname}
 set ws_distname icedtea-web-${ws_ver}
 set tagsoup_distname tagsoup-${tagsoup_ver}
 set rhino_distname rhino1_${rhino_ver}
-set ecj_distname ecj-${ecj_ver}
+set hamcrest_distname hamcrest-all-${hamcrest_ver}
 distfiles           ${distname}${extract.suffix} \
                     ${ws_distname}${extract.suffix}:ws \
                     ${tagsoup_distname}.jar:tagsoup \
-                    ${rhino_distname}.zip:rhino
+                    ${rhino_distname}.zip:rhino \
+                    ${hamcrest_distname}.jar
                     
 checksums           ${distname}${extract.suffix} \
                         rmd160  7ffec6da71e24d2913b717b5f31d6be9c2fa7b7e \
@@ -58,34 +59,37 @@ checksums           ${distname}${extract.suffix} \
                         rmd160  fc83068e8293bad7a8d38250d66f67f98e132451 \
                         sha256  c94c6de3a29b3acbc4eee732e688f75a5d94bd02c9878be4ceb4d3cd220f3866 \
                         size    1753170 \
-                    ${ecj_distname}.jar \
-                        rmd160  9a85eef1fc1ade5b8bae3845a3c193fa03035deb \
-                        sha256  9cddda75f4a1b4469e73f44e7b61a3e897d0f657df4797f9106ffe88c4eeade0 \
-                        size    2440899
+                    ${hamcrest_distname}.jar \
+                        rmd160  dbdade9fc5cbf72b786b5694cb74dce21895bccd \
+                        sha256  4877670629ab96f34f5f90ab283125fcd9acb7e683e66319a68be6eb2cca60de \
+                        size    306578
 
 set ws_src IcedTea-Web-${ws_distname}
 set rhino_bin ${rhino_distname}
 set tagsoup_jar ${tagsoup_distname}.jar
-set ecj_jar ${ecj_distname}.jar
+set hamcrest_jar ${hamcrest_distname}.jar
 
-depends_lib         port:freetype
+depends_lib         port:freetype \
+                    port:desktop-file-utils
 depends_build       port:autoconf \
                     port:gmake \
                     port:pkgconfig \
                     port:bash \
+                    port:bash-completion \
                     port:autoconf \
                     port:automake \
                     port:coreutils \
                     port:gsed \
-                    port:rust
+                    port:rust \
+                    port:junit
 depends_extract-append     port:unzip
 
 extract.only-delete        ${tagsoup_jar}
 extract.only-delete        ${rhino_distname}.zip
-extract.only-delete        ${ecj_distname}.jar
+extract.only-delete        ${hamcrest_distname}.jar
 
 post-extract {
-    ${prefix}/bin/unzip ${rhino_distname}.zip -d ${workpath}
+    system -W ${workpath}/${ws_src} "${prefix}/bin/unzip ${rhino_distname}.zip -d ${workpath}"
 }
 
 patchfiles          0001-8181503-Can-t-compile-hotspot-with-c-11.patch \
@@ -123,6 +127,23 @@ if {${configure.build_arch} eq "ppc"} {
 pre-patch {
     reinplace "s|net.java.openjdk|org.macports.openjdk|g" ${worksrcpath}/common/autoconf/version-numbers
     reinplace "s|MACOSX_BUNDLE_NAME_BASE=\"OpenJDK\"|MACOSX_BUNDLE_NAME_BASE=\"OpenJDK${major}\"|g" ${worksrcpath}/common/autoconf/version-numbers
+    reinplace "s|Icon=javaws|Icon=itweb-javaws|g" \
+        "${workpath}/${ws_src}/javaws.desktop.in"
+        "${workpath}/${ws_src}/itweb-settings.desktop.in"
+        "${workpath}/${ws_src}/policyeditor.desktop.in"
+    reinplace "s|DBROWSERS=-Dused.browsers|DBROWSERS=-Du_.browsers|g" ${workpath}/${ws_src}/Makefile.am
+    reinplace "s|MOZILLA_VERSION_COLLAPSED|MOZILLA_VERSION_COLLAPSE_|g" ${workpath}/${ws_src}/Makefile.am
+    reinplace "s|RhinoBasedPacEvaluator|RhinoBa_PacEvaluator|g" ${workpath}/${ws_src}/Makefile.am
+    reinplace "s|SEDDED_VERSION|_DED_VERSION|g" ${workpath}/${ws_src}/Makefile.am
+    reinplace "s|Passed|Pass_d|g" ${workpath}/${ws_src}/Makefile.am
+    reinplace "s|sed|gsed|g" \
+        "${workpath}/${ws_src}/html-gen.sh"
+        "${workpath}/${ws_src}/Makefile.am"
+    reinplace "s|DBROWSERS=-Du_.browsers|DBROWSERS=-Dused.browsers|g" ${workpath}/${ws_src}/Makefile.am
+    reinplace "s|MOZILLA_VERSION_COLLAPSE_|MOZILLA_VERSION_COLLAPSED|g" ${workpath}/${ws_src}/Makefile.am
+    reinplace "s|RhinoBa_PacEvaluator|RhinoBasedPacEvaluator|g" ${workpath}/${ws_src}/Makefile.am
+    reinplace "s|_DED_VERSION|SEDDED_VERSION|g" ${workpath}/${ws_src}/Makefile.am
+    reinplace "s|Pass_d|Passed|g" ${workpath}/${ws_src}/Makefile.am
 }
 
 pre-configure {
@@ -149,10 +170,6 @@ configure.args      --with-boot-jdk=${boot_dir} \
                     --with-update-version=${update} \
                     --with-conf-name=openjdk8 \
                     --with-native-debug-symbols=none
-
-post-configure {
-    system -W ${workpath}/${ws_src} "./configure --disable-native-plugin --prefix=${destroot}${prefix}/share/java/${name} --with-rhino=${workpath}/${rhino_bin}/js.jar --with-tagsoup=${workpath}/${tagsoup_jar} --with-jdk-home=${boot_dir} --with-jre-home=${boot_dir} --with-ecj-jar=${workpath}/${ecj_jar} "
-}
 
 if { [string match *clang* ${configure.compiler}] } {
     configure.args-append \
@@ -270,18 +287,30 @@ if {![variant_isset core] && ![variant_isset zeroshark] && ![variant_isset zero]
     }
 }
 
+build.env           BIN_BASH=${prefix}/bin/bash \
+                    bashcompdir=${prefix}/etc/profile.d/bash_completion.sh 
 build.type          gnu
 build.target        images
 use_parallel_build  no
 set jdkn jdk1.${major}.0_${update}.jdk
 set jren jre1.${major}.0_${update}.jre
-set jdk_bundle_dir build/openjdk8/images/j2sdk-bundle/${jdkn}/Contents
+setcjdk_bundle_dir build/openjdk8/images/j2sdk-bundle/${jdkn}/Contents
 set jre_bundle_dir build/openjdk8/images/j2re-bundle/${jren}/Contents
 set jdk_path ${tpath}/JavaVirtualMachines/${name}
 set jre_path ${tpath}/JavaVirtualMachines/${name}-jre
+set install_path ${prefix}/share/java/${name}
+
+set ws_configure --prefix="${install_path}"
+lappend ws_configure --with-rhino="${workpath}/${rhino_bin}/js.jar"
+lappend ws_configure --with-tagsoup="${workpath}/${tagsoup_jar}"
+lappend ws_configure --with-jdk-home="${worksrcpath}/${jdk_bundle_dir}"
+lappend ws_configure --with-hamcrest="${workpath}/${hamcrest_jar}"
+lappend ws_configure --with-itw-libs="DISTRIBUTION"
+lappend ws_configure --enable-shell-launchers
 
 post-build {
-    system -W ${workpath}/${ws_src} "make DESTDIR=\"${destroot}\" "
+    system -W ${workpath}/${ws_src} "bash ./configure ${ws_configure}"
+    system -W ${workpath}/${ws_src} "gmake DESTDIR=${destroot}"
 }
 
 test.run            yes
@@ -295,7 +324,7 @@ destroot {
     copy ${worksrcpath}/${jdk_bundle_dir} ${destroot}${jdk_path}
     copy ${worksrcpath}/${jre_bundle_dir} ${destroot}${jre_path}
 
-    ln ../Library/Java/JavaVirtualMachines/${name}/Contents/Home/ ${destroot}${prefix}/share/java/${name}
+    ln ../Library/Java/JavaVirtualMachines/${name}/Contents/Home/ ${destroot}${install_path}
 }
 destroot.violate_mtree      yes
 
