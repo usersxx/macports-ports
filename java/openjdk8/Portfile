@@ -301,6 +301,7 @@ set jre_path ${tpath}/JavaVirtualMachines/${name}-jre
 set install_path ${prefix}/share/java/${name}
 
 set ws_configure --prefix=/icedtea-ws
+lappend ws_configure --disable-native-plugin
 lappend ws_configure --with-rhino=${workpath}/${rhino_bin}/js.jar
 lappend ws_configure --with-tagsoup=${workpath}/${tagsoup_jar}
 lappend ws_configure --with-jdk-home=${worksrcpath}/${jdk_bundle_dir}/home
