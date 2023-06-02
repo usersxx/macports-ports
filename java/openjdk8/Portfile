@@ -300,17 +300,18 @@ set jdk_path ${tpath}/JavaVirtualMachines/${name}
 set jre_path ${tpath}/JavaVirtualMachines/${name}-jre
 set install_path ${prefix}/share/java/${name}
 
-set ws_configure --prefix="${install_path}"
+set ws_configure --prefix="/icedtea-ws"
 lappend ws_configure --with-rhino="${workpath}/${rhino_bin}/js.jar"
 lappend ws_configure --with-tagsoup="${workpath}/${tagsoup_jar}"
-lappend ws_configure --with-jdk-home="${worksrcpath}/${jdk_bundle_dir}"
+lappend ws_configure --with-jdk-home="${worksrcpath}/${jdk_bundle_dir}/home"
 lappend ws_configure --with-hamcrest="${workpath}/${hamcrest_jar}"
 lappend ws_configure --with-itw-libs="DISTRIBUTION"
 lappend ws_configure --enable-shell-launchers
 
 post-build {
+    xinstall -m 755 -d ${destroot}${jdk_path}
     system -W ${workpath}/${ws_src} "bash ./configure ${ws_configure}"
-    system -W ${workpath}/${ws_src} "gmake DESTDIR=${destroot}"
+    system -W ${workpath}/${ws_src} "gmake"
 }
 
 test.run            yes
@@ -324,12 +325,14 @@ destroot {
     copy ${worksrcpath}/${jdk_bundle_dir} ${destroot}${jdk_path}
     copy ${worksrcpath}/${jre_bundle_dir} ${destroot}${jre_path}
 
-    ln ../Library/Java/JavaVirtualMachines/${name}/Contents/Home/ ${destroot}${install_path}
+    ln ..${jdk_path} ${destroot}${jdk_path}/Contents/Home/bundle
+
+    ln ..${jdk_path}/Contents/Home/ ${destroot}${install_path}
 }
 destroot.violate_mtree      yes
 
 post-destroot {
-    system -W ${workpath}/${ws_src} "make DESTDIR=\"${destroot}\" "
+    system -W ${workpath}/${ws_src} "make DESTDIR=\"${destroot}${install_path}/bundle\" "
 }
 
 notes "
