@@ -121,7 +121,7 @@ if {${configure.build_arch} eq "ppc"} {
 } else {
     set datamodel 64
     depends_build-append       port:openjdk8-bootstrap
-    set boot_dir /Library/Java/JavaVirtualMachines/openjdk8-bootstrap
+    set boot_dir /Library/Java/JavaVirtualMachines/openjdk8-bootstrap/Contents/Home
 }
 
 pre-patch {
