@@ -89,7 +89,7 @@ extract.only-delete        ${rhino_distname}.zip
 extract.only-delete        ${hamcrest_distname}.jar
 
 post-extract {
-    system -W ${workpath}/${ws_src} "${prefix}/bin/unzip ${rhino_distname}.zip -d ${workpath}"
+    system -W ${distpath} "${prefix}/bin/unzip ${distpath}/${rhino_distname}.zip -d ${workpath}"
 }
 
 patchfiles          0001-8181503-Can-t-compile-hotspot-with-c-11.patch \
