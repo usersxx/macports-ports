@@ -327,12 +327,15 @@ destroot {
 
     ln ..${jdk_path} ${destroot}${jdk_path}/Contents/Home/bundle
 
-    ln ..${jdk_path}/Contents/Home/ ${destroot}${install_path}
+    ln ..${jdk_path}/Contents/Home ${destroot}${install_path}
 }
 destroot.violate_mtree      yes
 
 post-destroot {
     system -W ${workpath}/${ws_src} "make DESTDIR=\"${destroot}${install_path}/bundle\" "
+
+    ln ..${install_path}/bundle/icedtea-ws/bin/javaws ${destroot}${install_path}/bin/javaws
+    ln ..${install_path}/bundle/icedtea-ws/bin/itweb-settings ${destroot}${install_path}/bin/itweb-settings
 }
 
 notes "
