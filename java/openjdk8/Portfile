@@ -128,8 +128,8 @@ pre-patch {
     reinplace "s|net.java.openjdk|org.macports.openjdk|g" ${worksrcpath}/common/autoconf/version-numbers
     reinplace "s|MACOSX_BUNDLE_NAME_BASE=\"OpenJDK\"|MACOSX_BUNDLE_NAME_BASE=\"OpenJDK${major}\"|g" ${worksrcpath}/common/autoconf/version-numbers
     reinplace "s|Icon=javaws|Icon=itweb-javaws|g" \
-        "${workpath}/${ws_src}/javaws.desktop.in"
-        "${workpath}/${ws_src}/itweb-settings.desktop.in"
+        "${workpath}/${ws_src}/javaws.desktop.in" \
+        "${workpath}/${ws_src}/itweb-settings.desktop.in" \
         "${workpath}/${ws_src}/policyeditor.desktop.in"
     reinplace "s|DBROWSERS=-Dused.browsers|DBROWSERS=-Du_.browsers|g" ${workpath}/${ws_src}/Makefile.am
     reinplace "s|MOZILLA_VERSION_COLLAPSED|MOZILLA_VERSION_COLLAPSE_|g" ${workpath}/${ws_src}/Makefile.am
@@ -137,7 +137,7 @@ pre-patch {
     reinplace "s|SEDDED_VERSION|_DED_VERSION|g" ${workpath}/${ws_src}/Makefile.am
     reinplace "s|Passed|Pass_d|g" ${workpath}/${ws_src}/Makefile.am
     reinplace "s|sed|gsed|g" \
-        "${workpath}/${ws_src}/html-gen.sh"
+        "${workpath}/${ws_src}/html-gen.sh" \
         "${workpath}/${ws_src}/Makefile.am"
     reinplace "s|DBROWSERS=-Du_.browsers|DBROWSERS=-Dused.browsers|g" ${workpath}/${ws_src}/Makefile.am
     reinplace "s|MOZILLA_VERSION_COLLAPSE_|MOZILLA_VERSION_COLLAPSED|g" ${workpath}/${ws_src}/Makefile.am
