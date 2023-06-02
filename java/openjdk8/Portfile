@@ -41,7 +41,7 @@ distfiles           ${distname}${extract.suffix} \
                     ${ws_distname}${extract.suffix}:ws \
                     ${tagsoup_distname}.jar:tagsoup \
                     ${rhino_distname}.zip:rhino \
-                    ${hamcrest_distname}.jar
+                    ${hamcrest_distname}.jar:hamcrest
                     
 checksums           ${distname}${extract.suffix} \
                         rmd160  7ffec6da71e24d2913b717b5f31d6be9c2fa7b7e \
