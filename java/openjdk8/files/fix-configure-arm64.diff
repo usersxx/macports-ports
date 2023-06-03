@@ -1,0 +1,115 @@
+diff --git common/autoconf/generated-configure.sh common/autoconf/generated-configure.sh
+index b0b30333936..a2ae79c0402 100644
+--- common/autoconf/generated-configure.sh
++++ common/autoconf/generated-configure.sh
+@@ -13673,10 +13673,20 @@ test -n "$target_alias" &&
+       VAR_CPU_ENDIAN=little
+       ;;
+     arm*)
+-      VAR_CPU=arm
+-      VAR_CPU_ARCH=arm
+-      VAR_CPU_BITS=32
+-      VAR_CPU_ENDIAN=little
++      case "$2" in
++        *darwin*)
++          VAR_CPU=aarch64
++          VAR_CPU_ARCH=aarch64
++          VAR_CPU_BITS=64
++          VAR_CPU_ENDIAN=little
++        ;;
++        *)
++          VAR_CPU=arm
++          VAR_CPU_ARCH=arm
++          VAR_CPU_BITS=32
++          VAR_CPU_ENDIAN=little
++        ;;
++      esac
+       ;;
+     aarch64)
+       VAR_CPU=aarch64
+@@ -13811,10 +13821,20 @@ $as_echo "$OPENJDK_BUILD_OS-$OPENJDK_BUILD_CPU" >&6; }
+       VAR_CPU_ENDIAN=little
+       ;;
+     arm*)
+-      VAR_CPU=arm
+-      VAR_CPU_ARCH=arm
+-      VAR_CPU_BITS=32
+-      VAR_CPU_ENDIAN=little
++      case "$2" in
++        *darwin*)
++          VAR_CPU=aarch64
++          VAR_CPU_ARCH=aarch64
++          VAR_CPU_BITS=64
++          VAR_CPU_ENDIAN=little
++        ;;
++        *)
++          VAR_CPU=arm
++          VAR_CPU_ARCH=arm
++          VAR_CPU_BITS=32
++          VAR_CPU_ENDIAN=little
++        ;;
++      esac
+       ;;
+     aarch64)
+       VAR_CPU=aarch64
+diff --git common/autoconf/platform.m4 common/autoconf/platform.m4
+index 51df988f619..c51829f5f24 100644
+--- common/autoconf/platform.m4
++++ common/autoconf/platform.m4
+@@ -43,11 +43,20 @@ AC_DEFUN([PLATFORM_EXTRACT_VARS_FROM_CPU],
+       VAR_CPU_ENDIAN=little
+       ;;
+     arm*)
+-      VAR_CPU=arm
+-      VAR_CPU_ARCH=arm
+-      VAR_CPU_BITS=32
+-      VAR_CPU_ENDIAN=little
+-      ;;
++      case "$2" in
++        *darwin*)
++          VAR_CPU=aarch64
++          VAR_CPU_ARCH=aarch64
++          VAR_CPU_BITS=64
++          VAR_CPU_ENDIAN=little
++        ;;
++        *)
++          VAR_CPU=arm
++          VAR_CPU_ARCH=arm
++          VAR_CPU_BITS=32
++          VAR_CPU_ENDIAN=little
++        ;;
++      esac
+     aarch64)
+       VAR_CPU=aarch64
+       VAR_CPU_ARCH=aarch64
+@@ -168,7 +177,7 @@ AC_DEFUN([PLATFORM_EXTRACT_TARGET_AND_BUILD],
+ 
+   # Convert the autoconf OS/CPU value to our own data, into the VAR_OS/CPU variables.
+   PLATFORM_EXTRACT_VARS_FROM_OS($build_os)
+-  PLATFORM_EXTRACT_VARS_FROM_CPU($build_cpu)
++  PLATFORM_EXTRACT_VARS_FROM_CPU($build_cpu, $build_os)
+   # ..and setup our own variables. (Do this explicitely to facilitate searching)
+   OPENJDK_BUILD_OS="$VAR_OS"
+   OPENJDK_BUILD_OS_API="$VAR_OS_API"
+@@ -190,7 +199,7 @@ AC_DEFUN([PLATFORM_EXTRACT_TARGET_AND_BUILD],
+ 
+   # Convert the autoconf OS/CPU value to our own data, into the VAR_OS/CPU variables.
+   PLATFORM_EXTRACT_VARS_FROM_OS($host_os)
+-  PLATFORM_EXTRACT_VARS_FROM_CPU($host_cpu)
++  PLATFORM_EXTRACT_VARS_FROM_CPU($host_cpu, $host_os)
+   # ... and setup our own variables. (Do this explicitely to facilitate searching)
+   OPENJDK_TARGET_OS="$VAR_OS"
+   OPENJDK_TARGET_OS_API="$VAR_OS_API"
+diff --git a/hotspot/src/cpu/zero/vm/cppInterpreter_zero.cpp b/hotspot/src/cpu/zero/vm/cppInterpreter_zero.cpp
+index 13838d9d34e..d45973a9171 100644
+--- hotspot/src/cpu/zero/vm/cppInterpreter_zero.cpp
++++ hotspot/src/cpu/zero/vm/cppInterpreter_zero.cpp
+@@ -370,7 +370,7 @@ int CppInterpreter::native_entry(Method* method, intptr_t UNUSED, TRAPS) {
+ 
+   // Make the call
+   intptr_t result[4 - LogBytesPerWord];
+-  ffi_call(handler->cif(), (void (*)()) function, result, arguments);
++  ffi_call(handler->cif(), CAST_TO_FN_PTR(void (*)(), function), result, arguments);
+ 
+   // Change the thread state back to _thread_in_Java.
+   // ThreadStateTransition::transition_from_native() cannot be used
