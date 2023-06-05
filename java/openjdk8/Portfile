@@ -146,10 +146,6 @@ pre-patch {
     reinplace "s|Pass_d|Passed|g" ${workpath}/${ws_src}/Makefile.am
 }
 
-pre-configure {
-    system -W ${workpath}/${ws_src} "./autogen.sh"
-}
-
 configure.cmd       ${prefix}/bin/bash ./configure
 configure.pre_args  --prefix=${tpath}
 set bug_url "https://trac.macports.org/newticket?port=${name}"
