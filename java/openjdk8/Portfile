@@ -64,7 +64,7 @@ checksums           ${distname}${extract.suffix} \
                         sha256  4877670629ab96f34f5f90ab283125fcd9acb7e683e66319a68be6eb2cca60de \
                         size    306578
 
-set ws_src IcedTea-Web-${ws_distname}
+set ws_src ${ws_distname}
 set rhino_bin ${rhino_distname}
 set tagsoup_jar ${tagsoup_distname}.jar
 set hamcrest_jar ${hamcrest_distname}.jar
@@ -336,6 +336,7 @@ post-destroot {
     system -W ${workpath}/${ws_src} "make DESTDIR=\"${destroot}${install_path}/bundle\" "
 
     ln ..${install_path}/bundle/icedtea-ws/bin/javaws ${destroot}${install_path}/bin/javaws
+    ln ..${install_path}/bundle/icedtea-ws/bin/itweb-settings ${destroot}${install_path}/bin/itweb-settings
     ln ..${install_path}/bundle/icedtea-ws/bin/itweb-settings ${destroot}${install_path}/bin/itweb-settings
 }
 
