@@ -16,7 +16,6 @@ version             ${major}u${update}
 set ws_ver 1.8
 set tagsoup_ver 1.2.1
 set rhino_ver 6R7
-set hamcrest_ver 1.3
 revision            0
 categories          java devel
 supported_archs     ppc x86_64 arm64
@@ -36,7 +35,6 @@ worksrcdir          jdk8u-${distname}
 set ws_distname icedtea-web-${ws_ver}
 set tagsoup_distname tagsoup-${tagsoup_ver}
 set rhino_distname rhino1_${rhino_ver}
-set hamcrest_distname hamcrest-all-${hamcrest_ver}
 distfiles           ${distname}${extract.suffix} \
                     ${ws_distname}${extract.suffix}:ws \
                     ${tagsoup_distname}.jar:tagsoup \
@@ -58,16 +56,11 @@ checksums           ${distname}${extract.suffix} \
                     ${rhino_distname}.zip \
                         rmd160  fc83068e8293bad7a8d38250d66f67f98e132451 \
                         sha256  c94c6de3a29b3acbc4eee732e688f75a5d94bd02c9878be4ceb4d3cd220f3866 \
-                        size    1753170 \
-                    ${hamcrest_distname}.jar \
-                        rmd160  dbdade9fc5cbf72b786b5694cb74dce21895bccd \
-                        sha256  4877670629ab96f34f5f90ab283125fcd9acb7e683e66319a68be6eb2cca60de \
-                        size    306578
+                        size    1753170
 
 set ws_src ${ws_distname}
 set rhino_bin ${rhino_distname}
 set tagsoup_jar ${tagsoup_distname}.jar
-set hamcrest_jar ${hamcrest_distname}.jar
 
 depends_lib         port:freetype \
                     port:desktop-file-utils
@@ -81,13 +74,11 @@ depends_build       port:autoconf \
                     port:coreutils \
                     port:gsed \
                     port:rust \
-                    port:junit
+                    port:cargo
 depends_extract-append     port:unzip
 
 extract.only-delete        ${tagsoup_jar}
 extract.only-delete        ${rhino_distname}.zip
-extract.only-delete        ${hamcrest_distname}.jar
-
 post-extract {
     system -W ${distpath} "${prefix}/bin/unzip ${distpath}/${rhino_distname}.zip -d ${workpath}"
 }
@@ -296,12 +287,11 @@ set jdk_path ${tpath}/JavaVirtualMachines/${name}
 set jre_path ${tpath}/JavaVirtualMachines/${name}-jre
 set install_path ${prefix}/share/java/${name}
 
-set ws_configure --prefix=/icedtea-ws
+set ws_configure --prefix=${install_path}/bundle/icedtea-ws
 lappend ws_configure --disable-native-plugin
 lappend ws_configure --with-rhino=${workpath}/${rhino_bin}/js.jar
 lappend ws_configure --with-tagsoup=${workpath}/${tagsoup_jar}
 lappend ws_configure --with-jdk-home=${worksrcpath}/${jdk_bundle_dir}/home
-lappend ws_configure --with-hamcrest=${workpath}/${hamcrest_jar}
 lappend ws_configure --with-itw-libs=DISTRIBUTION
 lappend ws_configure --enable-shell-launchers
 
@@ -325,14 +315,14 @@ destroot {
     ln ..${jdk_path} ${destroot}${jdk_path}/Contents/Home/bundle
 
     ln ..${jdk_path}/Contents/Home ${destroot}${install_path}
+    xinstall -m 755 -d ${destroot}${jdk_path}/Home/icedtea-ws
 }
 destroot.violate_mtree      yes
 
 post-destroot {
-    system -W ${workpath}/${ws_src} "make DESTDIR=\"${destroot}${install_path}/bundle\" "
+    system -W ${workpath}/${ws_src} "make DESTDIR=\"${destroot}\" "
 
     ln ..${install_path}/bundle/icedtea-ws/bin/javaws ${destroot}${install_path}/bin/javaws
-    ln ..${install_path}/bundle/icedtea-ws/bin/itweb-settings ${destroot}${install_path}/bin/itweb-settings
     ln ..${install_path}/bundle/icedtea-ws/bin/itweb-settings ${destroot}${install_path}/bin/itweb-settings
 }
 
