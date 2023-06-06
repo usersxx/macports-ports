@@ -28,8 +28,7 @@ homepage            https://openjdk.org/
 master_sites        https://git.openjdk.org/jdk8u/archive/refs/tags/ \
                     https://icedtea.classpath.org/download/source/:ws \
                     https://repo1.maven.org/maven2/org/ccil/cowan/tagsoup/tagsoup/${tagsoup_ver}/:tagsoup \
-                    https://ftp.mozilla.org/pub/mozilla.org/js/:rhino \
-                    https://repo1.maven.org/maven2/org/hamcrest/hamcrest-all/${hamcrest_ver}/:hamcrest
+                    https://ftp.mozilla.org/pub/mozilla.org/js/:rhino
 distname            jdk${major}u${update}-ga
 worksrcdir          jdk8u-${distname}
 set ws_distname icedtea-web-${ws_ver}
@@ -38,8 +37,7 @@ set rhino_distname rhino1_${rhino_ver}
 distfiles           ${distname}${extract.suffix} \
                     ${ws_distname}${extract.suffix}:ws \
                     ${tagsoup_distname}.jar:tagsoup \
-                    ${rhino_distname}.zip:rhino \
-                    ${hamcrest_distname}.jar:hamcrest
+                    ${rhino_distname}.zip:rhino
                     
 checksums           ${distname}${extract.suffix} \
                         rmd160  7ffec6da71e24d2913b717b5f31d6be9c2fa7b7e \
