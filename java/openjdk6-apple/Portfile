@@ -1,0 +1,62 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+
+name                openjdk6-apple
+version             6
+revision            0
+categories          java devel
+maintainers         nomaintainer
+description         Apple openjdk6
+long_description    This is the apple jdk6
+homepage            https://www.apple.com/
+platforms           {darwin <= 17}
+supported_archs     x86_64 i386
+license             
+use_xcode           no
+depends_extract     port:xar
+set path /Library/Java/JavaVirtualMachine
+if {${os.major} eq 10} {
+    distfiles           JavaForMacOSX10.6.dmg
+    master_sites        https://updates.cdn-apple.com/2019/cert/041-90813-20191011-3137b1ba-3379-40e8-8d46-ce9032952939
+    checksums           rmd160  4018fdef04eb3e50a57c9eed29ed7601fe839102 \
+                        sha256  a5e7e101673b87915c87dee8b527258aa2c06dcbc22b7c723d95008e3f025953 \
+                        size    72873510
+    worksrcdir          openjdk6-apple
+    universal_variant   yes
+    set package JavaForMacOSX10.6.pkg
+    set install /System/Library/Java
+} else {
+    distfiles           JavaForOSX.dmg
+    master_sites        https://updates.cdn-apple.com/2019/cert/041-88384-20191011-3d8da658-dca4-4a5b-b67c-26e686876403
+    checksums           rmd160  c11a8a85a40fe31491f8663dd62551fde6838aad \
+                        sha256  3a91bd24a0524df4cde9433f2ac56182818f78aacda36c7529b3d548e0c12e63 \
+                        size    51101946
+    worksrcdir          openjdk6-apple
+    universal_variant   yes
+    set package JavaForOSX.pkg
+    set install /Library/Java
+}
+
+extract {
+    system -W ${workpath} "mkdir -p ${worksrcpath}/packages"
+    file copy ${distpath}/${distfiles} ${worksrcpath}/packages
+    system -W ${workpath} "mkdir -p ${worksrcpath}/dmg"
+    system -W ${workpath} "mkdir -p ${worksrcpath}/pkg"
+    system -W ${workpath} "mkdir -p ${worksrcpath}/files"
+    system -W ${worksrcpath}/packages "hdiutil attach ${worksrcpath}/packages/${distfiles} -mountroot ${worksrcpath}/dmg"
+    system -W ${worksrcpath}/dmg "cp ${worksrcpath}/dmg/*/*.pkg ${worksrcpath}/pkg"
+    system -W ${worksrcpath}/dmg "hdiutil detach ${worksrcpath}/dmg/*"
+    system -W ${worksrcpath}/pkg "mv ${worksrcpath}/pkg/*.pkg ${worksrcpath}/pkg/jdk${version}.pkg"
+    system -W ${worksrcpath}/pkg "${prefix}/bin/xar -xf ${worksrcpath}/pkg/jdk${version}.pkg -C ${worksrcpath}/files"
+    system -W ${worksrcpath} "cpio -i < ${worksrcpath}/files/${package}/Payload"
+}
+set install_path /share/java/${name}/${path}
+use_configure    no
+build {}
+destroot {
+   xinstall -m 755 -d ${destroot}${prefix}${install_path}
+   xinstall -m 755 -d ${destroot}${path}
+   copy ${worksrcpath}${install} ${destroot}${prefix}${install_path}
+   ln -s ../../${install_path} ${destroot}${path}/${name}
+}
