@@ -12,7 +12,7 @@ long_description    This is the apple jdk6
 homepage            https://www.apple.com/
 platforms           darwin
 supported_archs     x86_64 i386
-license             
+license             Permissive
 use_xcode           no
 depends_extract     port:xar
 set path /Library/Java/JavaVirtualMachine
