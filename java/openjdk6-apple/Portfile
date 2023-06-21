@@ -16,7 +16,17 @@ license
 use_xcode           no
 depends_extract     port:xar
 set path /Library/Java/JavaVirtualMachine
-if {${os.major} eq 10} {
+if {${os.platform} eq "darwin" && ${os.major} > 10} {
+    distfiles           JavaForOSX.dmg
+    master_sites        https://updates.cdn-apple.com/2019/cert/041-88384-20191011-3d8da658-dca4-4a5b-b67c-26e686876403
+    checksums           rmd160  c11a8a85a40fe31491f8663dd62551fde6838aad \
+                        sha256  3a91bd24a0524df4cde9433f2ac56182818f78aacda36c7529b3d548e0c12e63 \
+                        size    51101946
+    worksrcdir          openjdk6-apple
+    universal_variant   yes
+    set package JavaForOSX.pkg
+    set install /Library/Java
+} elseif {${os.platform} eq "darwin" && ${os.major} eq 10} {
     distfiles           JavaForMacOSX10.6.dmg
     master_sites        https://updates.cdn-apple.com/2019/cert/041-90813-20191011-3137b1ba-3379-40e8-8d46-ce9032952939
     checksums           rmd160  4018fdef04eb3e50a57c9eed29ed7601fe839102 \
@@ -27,15 +37,11 @@ if {${os.major} eq 10} {
     set package JavaForMacOSX10.6.pkg
     set install /System/Library/Java
 } else {
-    distfiles           JavaForOSX.dmg
-    master_sites        https://updates.cdn-apple.com/2019/cert/041-88384-20191011-3d8da658-dca4-4a5b-b67c-26e686876403
-    checksums           rmd160  c11a8a85a40fe31491f8663dd62551fde6838aad \
-                        sha256  3a91bd24a0524df4cde9433f2ac56182818f78aacda36c7529b3d548e0c12e63 \
-                        size    51101946
-    worksrcdir          openjdk6-apple
-    universal_variant   yes
-    set package JavaForOSX.pkg
-    set install /Library/Java
+    known_fail yes
+    pre-fetch {
+        ui_error "Apple openjdk6 is only supported on macOS 10.6 snow leopard or later."
+        return -code error
+    }
 }
 
 extract {
