@@ -10,7 +10,7 @@ maintainers         nomaintainer
 description         Apple openjdk6
 long_description    This is the apple jdk6
 homepage            https://www.apple.com/
-platforms           {darwin <= 17}
+platforms           darwin
 supported_archs     x86_64 i386
 license             
 use_xcode           no
