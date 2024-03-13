@@ -1,5 +1,5 @@
---- a/make/autoconf/lib-ffi.m4
-+++ b/make/autoconf/lib-ffi.m4
+--- make/autoconf/lib-ffi.m4
++++ make/autoconf/lib-ffi.m4
 @@ -85,6 +85,20 @@ AC_DEFUN_ONCE([LIB_SETUP_LIBFFI],
            [LIBFFI_FOUND=no]
        )
