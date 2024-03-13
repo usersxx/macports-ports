@@ -22,7 +22,8 @@ checksums           rmd160  c0e83afbc87100eb1f6a7e6ebf1c06adc2c6db22 \
                     size    110105407
 
 depends_lib         port:freetype \
-                    port:libiconv
+                    port:libiconv \
+                    port:libffi
 depends_build       port:autoconf \
                     port:gmake \
                     port:bash \
@@ -42,7 +43,6 @@ set bug_url "https://trac.macports.org/newticket?port=${name}"
 configure.args      --with-debug-level=release \
                     --with-native-debug-symbols=none \
                     --with-version-string=${version}+${build} \
-                    --with-target-bits=64 \
                     --with-sysroot=`xcrun --sdk macosx --show-sdk-path` \
                     --with-extra-cflags="${configure.cflags}" \
                     --with-extra-cxxflags="${configure.cxxflags}" \
@@ -53,7 +53,10 @@ configure.args      --with-debug-level=release \
                     --with-freetype-lib=${prefix}/lib \
                     --disable-warnings-as-errors \
                     --disable-precompiled-headers \
-                    --with-conf-name=openjdk9-bootstrap
+                    --with-conf-name=openjdk9-bootstrap \
+                    --with-jvm-variants=zero \
+                    --with-libffi=${prefix} \
+                    --enable-libffi-bundling
 
 if {[option configure.ccache]} {
     # replace MacPorts ccache integration into JDK
@@ -61,29 +64,6 @@ if {[option configure.ccache]} {
     depends_build-append    path:bin/ccache:ccache
     configure.args-append   --enable-ccache \
                             --with-ccache-dir=${ccache_dir}
-}
-
-variant minimal \
-    conflicts client core server zero \
-    description {JVM with reduced form of normal interpreter having C1, no C2 compiler and optional features stripped out} {
-    configure.args-append   --with-jvm-variants=minimal
-}
-
-variant zero \
-    conflicts client core minimal server \
-    description {JVM with C++ based interpreter only, no compiler} {
-    configure.args-append   --with-jvm-variants=zero \
-                            --with-libffi=${prefix} \
-                            --enable-libffi-bundling
-    depends_lib-append         port:libffi
-}
-
-if {![variant_isset minimal] && ![variant_isset zero]} {
-    if {${os.platform} eq "darwin" && ${os.major} < 13} {
-        default_variants-append +zero
-    } else {
-        default_variants-append +minimal
-    }
 }
 
 build.type          gnu
