@@ -34,9 +34,13 @@ pre-patch {
     reinplace "s|libffi.so.?|libffi.?.dylib|g" ${worksrcpath}/common/autoconf/lib-ffi.m4
     reinplace "s|xmacosx|xwindows|g" ${worksrcpath}/common/autoconf/lib-freetype.m4
     reinplace "s|libffi.so.?|libffi.?.dylib|g" ${worksrcpath}/hotspot/make/copy/Copy-java.base.gmk
+    reinplace "s|ffi_call(handler->cif(), (void (*)()) function, result, arguments);|ffi_call(handler->cif(), CAST_TO_FN_PTR(void (*)(), function), result, arguments);
+|g" ${worksrcpath}/hotspot/make/copy/Copy-java.base.gmk
+    reinplace "s|ffi_call(handler->cif(), (void (*)()) function, result, arguments);|ffi_call(handler->cif(), CAST_TO_FN_PTR(void (*)(), function), result, arguments);
+|g" ${worksrcpath}/hotspot/make/copy/Copy-java.base.gmk
 }
 
-patchfiles          lib-ffi.diff
+patchfiles          zerovm.diff
 
 set tpath /Library/Java
 use_configure    yes
