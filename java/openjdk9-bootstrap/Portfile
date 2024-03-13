@@ -28,12 +28,6 @@ depends_build       port:autoconf \
                     port:bash \
                     port:openjdk8-bootstrap
 
-pre-patch {
-    reinplace "s|libffi.so.?|libffi.?.dylib|g" ${worksrcpath}/make/autoconf/lib-ffi.m4
-    reinplace "s|xmacosx|xwindows|g" ${worksrcpath}/make/autoconf/lib-freetype.m4
-    reinplace "s|assert|vmassert|g" ${worksrcpath}/src/hotspot/share/jfr/periodic/jfrNetworkUtilization.cpp
-}
-
 set tpath ${prefix}/Library/Java
 use_configure    yes
 configure.cmd       ${prefix}/bin/bash configure
