@@ -15,7 +15,7 @@ long_description    OpenJDK 9 Boot JDK to bootstrap Openjdk ports.
 homepage            https://openjdk.org/
 master_sites        https://github.com/openjdk/jdk9/archive/refs/tags
 distname            jdk-${version}+${build}
-worksrcdir          jdk9-${distname}
+worksrcdir          jdk9-jdk-${version}-${build}
 
 checksums           rmd160  c0e83afbc87100eb1f6a7e6ebf1c06adc2c6db22 \
                     sha256  99bbfe3af1d8fe2326aca522626411132bf3ddf026fccefb2b01a4340dac4a2a \
