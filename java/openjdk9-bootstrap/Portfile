@@ -53,11 +53,7 @@ configure.args      --with-debug-level=release \
                     --with-freetype-lib=${prefix}/lib \
                     --disable-warnings-as-errors \
                     --disable-precompiled-headers \
-                    --with-vendor-name="MacPorts" \
-                    --with-vendor-url="https://www.macports.org" \
-                    --with-vendor-bug-url="${bug_url}" \
-                    --with-vendor-vm-bug-url="${bug_url}" \
-                    --with-conf-name=openjdk9
+                    --with-conf-name=openjdk9-bootstrap
 
 if {[option configure.ccache]} {
     # replace MacPorts ccache integration into JDK
