@@ -30,11 +30,13 @@ depends_build       port:autoconf \
                     port:openjdk8-bootstrap \
                     port:pkgconfig
 
-patch {
+pre-patch {
     reinplace "s|libffi.so.?|libffi.?.dylib|g" ${worksrcpath}/common/autoconf/lib-ffi.m4
     reinplace "s|xmacosx|xwindows|g" ${worksrcpath}/common/autoconf/lib-freetype.m4
     reinplace "s|libffi.so.?|libffi.?.dylib|g" ${worksrcpath}/hotspot/make/copy/Copy-java.base.gmk
 }
+
+patchfiles          lib-ffi.diff
 
 set tpath /Library/Java
 use_configure    yes
