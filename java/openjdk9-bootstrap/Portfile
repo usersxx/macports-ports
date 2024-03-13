@@ -34,10 +34,7 @@ pre-patch {
     reinplace "s|libffi.so.?|libffi.?.dylib|g" ${worksrcpath}/common/autoconf/lib-ffi.m4
     reinplace "s|xmacosx|xwindows|g" ${worksrcpath}/common/autoconf/lib-freetype.m4
     reinplace "s|libffi.so.?|libffi.?.dylib|g" ${worksrcpath}/hotspot/make/copy/Copy-java.base.gmk
-    reinplace "s|ffi_call(handler->cif(), (void (*)()) function, result, arguments);|ffi_call(handler->cif(), CAST_TO_FN_PTR(void (*)(), function), result, arguments);
-|g" ${worksrcpath}/hotspot/make/copy/Copy-java.base.gmk
-    reinplace "s|ffi_call(handler->cif(), (void (*)()) function, result, arguments);|ffi_call(handler->cif(), CAST_TO_FN_PTR(void (*)(), function), result, arguments);
-|g" ${worksrcpath}/hotspot/make/copy/Copy-java.base.gmk
+    reinplace "s|(void (*)()) function, result, arguments);|CAST_TO_FN_PTR(void (*)(), function), result, arguments);|g" ${worksrcpath}/hotspot/src/cpu/zero/vm/cppInterpreter_zero.cpp
 }
 
 patchfiles          zerovm.diff
