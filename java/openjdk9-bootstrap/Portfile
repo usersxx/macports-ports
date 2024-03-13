@@ -17,9 +17,9 @@ master_sites        https://github.com/openjdk/jdk9/archive/refs/tags
 distname            jdk-${version}+${build}
 worksrcdir          jdk9-${distname}
 
-checksums           rmd160  99ff7e4128c9082f7da5e29059015fe4a6604c69 \
-                    sha256  5ed47173679cdfefa0cb9fc92d443413e05ab2e157a29bb86e829d7f6a80913a \
-                    size    116235391
+checksums           rmd160  c0e83afbc87100eb1f6a7e6ebf1c06adc2c6db22 \
+                    sha256  99bbfe3af1d8fe2326aca522626411132bf3ddf026fccefb2b01a4340dac4a2a \
+                    size    110105407
 
 depends_lib         port:freetype \
                     port:libiconv
@@ -27,6 +27,11 @@ depends_build       port:autoconf \
                     port:gmake \
                     port:bash \
                     port:openjdk8-bootstrap
+
+pre-patch {
+    reinplace "s|libffi.so.?|libffi.?.dylib|g" ${worksrcpath}/common/autoconf/lib-ffi.m4
+    reinplace "s|xmacosx|xwindows|g" ${worksrcpath}/common/autoconf/lib-freetype.m4
+}
 
 set tpath ${prefix}/Library/Java
 use_configure    yes
@@ -75,10 +80,6 @@ variant zero \
                             --with-libffi=${prefix} \
                             --enable-libffi-bundling
     depends_lib-append         port:libffi
-}
-
-if {![variant_isset debug] && ![variant_isset optimized] && ![variant_isset release]} {
-    default_variants-append +release
 }
 
 if {![variant_isset minimal] && ![variant_isset zero]} {
