@@ -30,6 +30,8 @@ depends_build       port:autoconf \
                     port:bash \
                     port:openjdk11-bootstrap
 
+patchfile           libharfbuff.diff
+
 pre-patch {
     reinplace "s|libffi.so.?|libffi.?.dylib|g" ${worksrcpath}/make/autoconf/lib-ffi.m4
     reinplace "s|xmacosx|xwindows|g" ${worksrcpath}/make/autoconf/lib-freetype.m4
