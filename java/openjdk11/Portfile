@@ -30,10 +30,10 @@ depends_build       port:autoconf \
                     port:bash \
                     port:openjdk11-bootstrap
 
-patchfile           libharfbuff.diff
+patchfiles          libharfbuff.diff
 
 if {${os.platform} eq "darwin" && ${os.major} < 14} {
-    patchfile-append           Revert-patch-dc(<Darwin-14).diff        
+    patchfiles-append          Revert-patch-dc(<Darwin-14).diff        
 } 
 
 pre-patch {
